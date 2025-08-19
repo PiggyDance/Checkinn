@@ -4,9 +4,8 @@
     <uses-permission android:name="android.permission.NFC" />
 
     <!-- 新增：声明应用使用 NFC 硬件，但非必须 -->
-    <uses-feature
-        android:name="android.hardware.nfc"
-        android:required="false" />
+    <uses-feature android:name="android.hardware.nfc" android:required="true" />
+
 
     <application
         android:allowBackup="true"
@@ -19,18 +18,16 @@
             android:exported="true"
             android:name=".MainActivity">
             <intent-filter>
+                <action android:name="android.nfc.action.TECH_DISCOVERED"/>
+            </intent-filter>
+
+            <meta-data android:name="android.nfc.action.TECH_DISCOVERED"
+                android:resource="@xml/nfc_tech_filter" />
+
+
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="application/io.piggydance.checkinn.ui" />
             </intent-filter>
 
         </activity>
