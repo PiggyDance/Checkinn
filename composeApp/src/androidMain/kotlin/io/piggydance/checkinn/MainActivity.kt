@@ -3,6 +3,8 @@ package io.piggydance.checkinn
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentFilter
+import android.nfc.NdefMessage
+import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Build
@@ -125,10 +127,33 @@ class MainActivity : ComponentActivity(), NFCReaderListener {
 
     private fun processIntent(intent: Intent) {
         val action = intent.action
+        Log.d(TAG, "NFC intent received, action: $action")
         if (action == NfcAdapter.ACTION_NDEF_DISCOVERED ||
             action == NfcAdapter.ACTION_TECH_DISCOVERED ||
             action == NfcAdapter.ACTION_TAG_DISCOVERED) {
-            Log.d(TAG, "NFC intent received")
+            if (NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
+                val rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
+                if (rawMsgs != null) {
+                    val msgs = rawMsgs.map { it as NdefMessage }
+                    for (msg in msgs) {
+                        for (record in msg.records) {
+                            if (record.tnf == NdefRecord.TNF_WELL_KNOWN &&
+                                record.type.contentEquals(NdefRecord.RTD_URI)) {
+
+                                // 解析 URI
+                                val uri = record.toUri()
+                                Log.d("NFC", "Scanned URI = $uri")
+
+                                // 拿参数
+                                uri?.getQueryParameter("userId")?.let { userId ->
+                                    Log.d("NFC", "userId = $userId")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             val result = nfcReader.readTag(intent)
             // 这里会通过NFCReaderListener回调更新UI
 
