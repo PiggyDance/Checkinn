@@ -31,7 +31,9 @@ kotlin {
     sourceSets {
         androidMain.dependencies {
             implementation(compose.preview)
-            implementation(libs.androidx.activity.compose)
+        }
+        iosMain.dependencies {
+
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -40,9 +42,14 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(libs.runtime.livedata)
+
+            // ViewModel
+            implementation(libs.jetbrains.lifecycle.viewmodel.compose)
+
+            // Lottie Compottie
+            implementation(libs.compottie)
+            implementation(libs.compottieDot)
+            implementation(libs.compottieNetwork)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
