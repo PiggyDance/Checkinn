@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- 新增：NFC 权限 -->
+    <!-- NFC 权限 -->
     <uses-permission android:name="android.permission.NFC" />
 
-    <!-- 新增：声明应用使用 NFC 硬件，但非必须 -->
+    <!-- 声明应用使用 NFC 硬件 -->
     <uses-feature android:name="android.hardware.nfc" android:required="true" />
-
 
     <application
         android:allowBackup="true"
@@ -18,19 +17,24 @@
             android:exported="true"
             android:launchMode="singleTask"
             android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <!-- 匹配 External Type -->
-                <data android:scheme="piggydance" />
-            </intent-filter>
 
-
-
+            <!-- 主启动入口 -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- NFC NDEF 发现: 匹配 piggydance:// scheme -->
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="piggydance" />
+            </intent-filter>
+
+            <!-- NFC Tech 发现: 匹配空白/未知标签 -->
+            <meta-data
+                android:name="android.nfc.action.TECH_DISCOVERED"
+                android:resource="@xml/nfc_tech_filter" />
 
         </activity>
     </application>
