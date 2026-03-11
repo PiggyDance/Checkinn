@@ -16,9 +16,12 @@ import android.util.Log
 /**
  * NFC 读写辅助类.
  *
- * NFC 贴纸写入的 NDEF 格式:
- *   URI: piggydance://checkinn?s=clock_in  (上班卡)
- *   URI: piggydance://checkinn?s=clock_out (下班卡)
+ * NFC 贴纸写入的 NDEF 格式 (2条记录):
+ *   Record 1 - URI:  piggydance://checkinn?s=clock_in  (或 clock_out)
+ *   Record 2 - AAR:  io.piggydance.checkinn (Android Application Record)
+ *
+ * AAR 的作用: Android 系统检测到 AAR 后会无条件直接启动指定包名的 App,
+ * 不会弹出"是否打开"的确认提示框, 实现支付宝碰一碰同款的即刷即开效果.
  */
 class NfcHelper(private val activity: Activity) {
 
@@ -27,6 +30,7 @@ class NfcHelper(private val activity: Activity) {
         const val SCHEME = "piggydance"
         const val HOST = "checkinn"
         const val PARAM_SCENE = "s"
+        const val PACKAGE_NAME = "io.piggydance.checkinn"
     }
 
     private val nfcAdapter: NfcAdapter? = NfcAdapter.getDefaultAdapter(activity)
@@ -113,8 +117,10 @@ class NfcHelper(private val activity: Activity) {
         } ?: return false
 
         val uri = "$SCHEME://$HOST?$PARAM_SCENE=${scene.key}"
-        val record = NdefRecord.createUri(uri)
-        val message = NdefMessage(arrayOf(record))
+        val uriRecord = NdefRecord.createUri(uri)
+        // AAR: 让 Android 系统直接启动本 App, 不弹确认框
+        val aarRecord = NdefRecord.createApplicationRecord(PACKAGE_NAME)
+        val message = NdefMessage(arrayOf(uriRecord, aarRecord))
 
         return try {
             // 先尝试用 Ndef
