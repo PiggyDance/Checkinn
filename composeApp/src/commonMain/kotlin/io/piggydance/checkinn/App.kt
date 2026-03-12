@@ -26,7 +26,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -35,7 +39,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,12 +57,15 @@ import io.github.alexzhirkevich.compottie.LottieCompositionSpec
 import io.github.alexzhirkevich.compottie.rememberLottieComposition
 import kotlinx.coroutines.delay
 
+enum class AppTab { HOME, HISTORY }
+
 @Composable
 fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    var currentTab by remember { mutableStateOf(AppTab.HOME) }
 
-    // 每秒刷新一次当前时间，用于实时更新工作时长
+    // 每秒刷新一次当前时间
     LaunchedEffect(uiState.todayRecord.hasActiveSession) {
         while (uiState.todayRecord.hasActiveSession) {
             delay(1000)
@@ -74,68 +83,31 @@ fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
 
     MaterialTheme {
         Box(modifier = Modifier.fillMaxSize()) {
-            // 主界面
-            Column(
-                modifier = Modifier
-                    .safeContentPadding()
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // 标题
-                Text(
-                    text = "Checkinn",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "NFC 智能打卡",
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                // 状态卡片
-                StatusCard(uiState = uiState)
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // 今日工作时段
-                SessionsCard(uiState = uiState)
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // 手动打卡按钮 (用于测试)
-                ManualCheckButtons(viewModel = viewModel)
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // NFC 写入卡片区域
-                NfcWriteSection(viewModel = viewModel, uiState = uiState)
-
-                Spacer(modifier = Modifier.height(32.dp))
+            Scaffold(
+                bottomBar = {
+                    BottomNav(
+                        currentTab = currentTab,
+                        onTabSelected = { currentTab = it },
+                    )
+                },
+                snackbarHost = {
+                    SnackbarHost(hostState = snackbarHostState) { data ->
+                        Snackbar(
+                            snackbarData = data,
+                            shape = RoundedCornerShape(12.dp),
+                        )
+                    }
+                },
+            ) { innerPadding ->
+                Box(modifier = Modifier.padding(innerPadding)) {
+                    when (currentTab) {
+                        AppTab.HOME -> HomeScreen(viewModel = viewModel, uiState = uiState)
+                        AppTab.HISTORY -> HistoryScreen(viewModel = viewModel)
+                    }
+                }
             }
 
-            // Snackbar
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp),
-            ) { data ->
-                Snackbar(
-                    snackbarData = data,
-                    shape = RoundedCornerShape(12.dp),
-                )
-            }
-
-            // Lottie 动画覆盖层
+            // Lottie 动画覆盖层 (全局覆盖)
             AnimatedVisibility(
                 visible = uiState.showAnimation,
                 enter = fadeIn(),
@@ -160,6 +132,88 @@ fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
 }
 
 @Composable
+fun BottomNav(currentTab: AppTab, onTabSelected: (AppTab) -> Unit) {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 4.dp,
+    ) {
+        NavigationBarItem(
+            selected = currentTab == AppTab.HOME,
+            onClick = { onTabSelected(AppTab.HOME) },
+            icon = { Text("🏠", fontSize = 20.sp) },
+            label = { Text("打卡") },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color(0xFF4CAF50),
+                selectedTextColor = Color(0xFF4CAF50),
+                indicatorColor = Color(0xFF4CAF50).copy(alpha = 0.12f),
+            ),
+        )
+        NavigationBarItem(
+            selected = currentTab == AppTab.HISTORY,
+            onClick = { onTabSelected(AppTab.HISTORY) },
+            icon = { Text("📊", fontSize = 20.sp) },
+            label = { Text("记录") },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color(0xFF4CAF50),
+                selectedTextColor = Color(0xFF4CAF50),
+                indicatorColor = Color(0xFF4CAF50).copy(alpha = 0.12f),
+            ),
+        )
+    }
+}
+
+// ==================== 首页 ====================
+
+@Composable
+fun HomeScreen(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
+    Column(
+        modifier = Modifier
+            .safeContentPadding()
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Checkinn",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = "NFC 智能打卡",
+            fontSize = 16.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        StatusCard(uiState = uiState)
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        SessionsCard(uiState = uiState)
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        ManualCheckButtons(viewModel = viewModel)
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        NfcWriteSection(viewModel = viewModel, uiState = uiState)
+
+        Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+// ==================== 首页组件 ====================
+
+@Composable
 fun StatusCard(uiState: CheckinnUiState) {
     val isWorking = uiState.todayRecord.hasActiveSession
     val bgColor = if (isWorking) Color(0xFF4CAF50) else Color(0xFF757575)
@@ -174,7 +228,6 @@ fun StatusCard(uiState: CheckinnUiState) {
             modifier = Modifier.fillMaxWidth().padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // 状态指示灯
             Box(
                 modifier = Modifier
                     .size(16.dp)
@@ -193,9 +246,7 @@ fun StatusCard(uiState: CheckinnUiState) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // 今日累计工作时长
             val totalDuration = if (isWorking) {
-                // 活跃状态下用当前时间计算
                 val completedMs = uiState.todayRecord.sessions
                     .filter { it.clockOutTime != null }
                     .sumOf { it.durationMs }
@@ -312,9 +363,7 @@ fun ManualCheckButtons(viewModel: CheckinnViewModel) {
             ) {
                 Button(
                     onClick = { viewModel.onNfcScanned(NfcScene.CLOCK_IN) },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF4CAF50)
-                    ),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
                     shape = RoundedCornerShape(12.dp),
                 ) {
                     Text("上班打卡", color = Color.White)
@@ -322,9 +371,7 @@ fun ManualCheckButtons(viewModel: CheckinnViewModel) {
 
                 Button(
                     onClick = { viewModel.onNfcScanned(NfcScene.CLOCK_OUT) },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFFF5722)
-                    ),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),
                     shape = RoundedCornerShape(12.dp),
                 ) {
                     Text("下班打卡", color = Color.White)
@@ -431,7 +478,6 @@ fun LottieOverlay(animationType: AnimationType, onDismiss: () -> Unit) {
         )
     }
 
-    // 动画播放3秒后自动关闭
     LaunchedEffect(animationType) {
         delay(3000)
         onDismiss()

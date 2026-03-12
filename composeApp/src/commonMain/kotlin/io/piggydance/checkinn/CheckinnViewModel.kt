@@ -13,13 +13,26 @@ data class CheckinnUiState(
     val showAnimation: Boolean = false,
     val animationType: AnimationType = AnimationType.NONE,
     val toastMessage: String? = null,
-    val isWriteMode: Boolean = false,          // 是否处于NFC写入模式
-    val writeScene: NfcScene? = null,          // 写入的场景类型
-    val writeSuccess: Boolean = false,         // 写入是否成功
+    val isWriteMode: Boolean = false,
+    val writeScene: NfcScene? = null,
+    val writeSuccess: Boolean = false,
+    // 历史视图
+    val historyViewMode: HistoryViewMode = HistoryViewMode.WEEK,
+    val weekAnchorDate: String = "",       // 当前周视图的锚点日期
+    val monthAnchorDate: String = "",      // 当前月视图的锚点日期
+    val weekRecords: List<DayRecord> = emptyList(),  // 当前周的记录
+    val monthRecords: List<DayRecord> = emptyList(), // 当前月的记录
+    val weekDates: List<String> = emptyList(),
+    val monthDates: List<String> = emptyList(),
+    val selectedDayRecord: DayRecord? = null, // 点击某天后查看详情
 )
 
 enum class AnimationType {
     NONE, CLOCK_IN, CLOCK_OUT
+}
+
+enum class HistoryViewMode {
+    WEEK, MONTH
 }
 
 class CheckinnViewModel : ViewModel() {
@@ -152,6 +165,67 @@ class CheckinnViewModel : ViewModel() {
         _uiState.update { it.copy(currentTimeMs = currentTimeMillis()) }
     }
 
+    // ========== 历史视图 ==========
+
+    /** 初始化历史视图, 默认显示当前周 */
+    fun initHistory() {
+        val today = todayDateString()
+        _uiState.update {
+            it.copy(weekAnchorDate = today, monthAnchorDate = today)
+        }
+        loadWeekData(today)
+        loadMonthData(today)
+    }
+
+    fun switchHistoryMode(mode: HistoryViewMode) {
+        _uiState.update { it.copy(historyViewMode = mode, selectedDayRecord = null) }
+    }
+
+    fun previousWeek() {
+        val newAnchor = offsetWeek(_uiState.value.weekAnchorDate, -1)
+        _uiState.update { it.copy(weekAnchorDate = newAnchor, selectedDayRecord = null) }
+        loadWeekData(newAnchor)
+    }
+
+    fun nextWeek() {
+        val newAnchor = offsetWeek(_uiState.value.weekAnchorDate, 1)
+        _uiState.update { it.copy(weekAnchorDate = newAnchor, selectedDayRecord = null) }
+        loadWeekData(newAnchor)
+    }
+
+    fun previousMonth() {
+        val newAnchor = offsetMonth(_uiState.value.monthAnchorDate, -1)
+        _uiState.update { it.copy(monthAnchorDate = newAnchor, selectedDayRecord = null) }
+        loadMonthData(newAnchor)
+    }
+
+    fun nextMonth() {
+        val newAnchor = offsetMonth(_uiState.value.monthAnchorDate, 1)
+        _uiState.update { it.copy(monthAnchorDate = newAnchor, selectedDayRecord = null) }
+        loadMonthData(newAnchor)
+    }
+
+    fun selectDay(date: String) {
+        val record = storage?.loadDayRecord(date) ?: DayRecord(date = date)
+        _uiState.update { it.copy(selectedDayRecord = record) }
+    }
+
+    fun clearSelectedDay() {
+        _uiState.update { it.copy(selectedDayRecord = null) }
+    }
+
+    private fun loadWeekData(anchorDate: String) {
+        val dates = getWeekDates(anchorDate)
+        val records = storage?.loadDayRecords(dates) ?: dates.map { DayRecord(date = it) }
+        _uiState.update { it.copy(weekDates = dates, weekRecords = records) }
+    }
+
+    private fun loadMonthData(anchorDate: String) {
+        val dates = getMonthDates(anchorDate)
+        val records = storage?.loadDayRecords(dates) ?: dates.map { DayRecord(date = it) }
+        _uiState.update { it.copy(monthDates = dates, monthRecords = records) }
+    }
+
     companion object {
         fun formatDuration(ms: Long): String {
             val totalSeconds = ms / 1000
@@ -159,6 +233,20 @@ class CheckinnViewModel : ViewModel() {
             val minutes = (totalSeconds % 3600) / 60
             val seconds = totalSeconds % 60
             return "${hours}小时${minutes}分${seconds}秒"
+        }
+
+        fun formatDurationShort(ms: Long): String {
+            val totalMinutes = ms / 60000
+            val hours = totalMinutes / 60
+            val minutes = totalMinutes % 60
+            return if (hours > 0) "${hours}h${minutes}m" else "${minutes}m"
+        }
+
+        fun formatHoursDecimal(ms: Long): String {
+            val totalMinutes = ms / 60000
+            val hours = totalMinutes / 60
+            val tenthHour = (totalMinutes % 60) * 10 / 60
+            return "${hours}.${tenthHour}"
         }
     }
 }
@@ -168,6 +256,11 @@ interface CheckinnStorageInterface {
     fun saveDayRecord(record: DayRecord)
     fun loadDayRecord(date: String): DayRecord
     fun getAllRecordDates(): List<String>
+
+    /** 批量加载多个日期的记录 */
+    fun loadDayRecords(dates: List<String>): List<DayRecord> {
+        return dates.map { loadDayRecord(it) }
+    }
 }
 
 expect fun todayDateString(): String
