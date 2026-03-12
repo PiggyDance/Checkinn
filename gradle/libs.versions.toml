@@ -1,6 +1,6 @@
 [versions]
-agp = "8.7.3"
-android-compileSdk = "35"
+agp = "8.9.1"
+android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "35"
 androidx-activity = "1.10.1"
@@ -13,6 +13,7 @@ composeMultiplatform = "1.8.2"
 junit = "4.13.2"
 kotlin = "2.2.0"
 compottieVersion = "2.0.0-rc04"
+haze = "1.7.2"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -26,6 +27,8 @@ jetbrains-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifec
 compottie = { group = "io.github.alexzhirkevich", name = "compottie", version.ref = "compottieVersion" }
 compottieDot = { group = "io.github.alexzhirkevich", name = "compottie-dot", version.ref = "compottieVersion" }
 compottieNetwork = { group = "io.github.alexzhirkevich", name = "compottie-network", version.ref = "compottieVersion" }
+# Haze - Gaussian Blur
+haze = { group = "dev.chrisbanes.haze", name = "haze", version.ref = "haze" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -15,8 +15,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -47,8 +47,9 @@ fun HistoryScreen(viewModel: CheckinnViewModel) {
 
     Column(
         modifier = Modifier
-            .safeContentPadding()
             .fillMaxSize()
+            .statusBarsPadding()
+            .padding(horizontal = 14.dp)
             .verticalScroll(rememberScrollState()),
     ) {
         Spacer(modifier = Modifier.height(20.dp))
@@ -84,7 +85,8 @@ fun HistoryScreen(viewModel: CheckinnViewModel) {
             }
         }
 
-        Spacer(modifier = Modifier.height(100.dp))
+        // 底部留白，避免内容被悬浮导航栏遮挡
+        Spacer(modifier = Modifier.height(120.dp))
     }
 }
 

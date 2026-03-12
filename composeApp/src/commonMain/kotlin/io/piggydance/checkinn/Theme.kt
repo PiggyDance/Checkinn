@@ -31,6 +31,9 @@ import checkinn.composeapp.generated.resources.jetbrains_mono_bold
 import checkinn.composeapp.generated.resources.jetbrains_mono_medium
 import checkinn.composeapp.generated.resources.jetbrains_mono_regular
 import checkinn.composeapp.generated.resources.jetbrains_mono_semibold
+import checkinn.composeapp.generated.resources.orbitron
+import checkinn.composeapp.generated.resources.orbitron_bold
+import checkinn.composeapp.generated.resources.orbitron_medium
 import org.jetbrains.compose.resources.Font
 
 // ========== 色板 ==========
@@ -166,6 +169,17 @@ val JetBrainsMonoFamily: FontFamily
         Font(Res.font.jetbrains_mono_medium, FontWeight.Medium),
         Font(Res.font.jetbrains_mono_semibold, FontWeight.SemiBold),
         Font(Res.font.jetbrains_mono_bold, FontWeight.Bold),
+    )
+
+/**
+ * Orbitron 字体族 - 用于 App 标题等显示性文本。
+ * 科技感未来感的几何风格字体。
+ */
+val OrbitronFamily: FontFamily
+    @Composable get() = FontFamily(
+        Font(Res.font.orbitron, FontWeight.Normal),
+        Font(Res.font.orbitron_medium, FontWeight.Medium),
+        Font(Res.font.orbitron_bold, FontWeight.Bold),
     )
 
 // ========== 主题入口 ==========

@@ -20,8 +20,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -58,6 +58,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import checkinn.composeapp.generated.resources.Res
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.haze
+import dev.chrisbanes.haze.hazeChild
 import io.github.alexzhirkevich.compottie.DotLottie
 import io.github.alexzhirkevich.compottie.LottieAnimation
 import io.github.alexzhirkevich.compottie.LottieCompositionSpec
@@ -71,6 +75,7 @@ fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var currentTab by remember { mutableStateOf(AppTab.HOME) }
+    val hazeState = remember { HazeState() }
 
     // 每秒刷新一次当前时间
     LaunchedEffect(uiState.todayRecord.hasActiveSession) {
@@ -92,25 +97,25 @@ fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
         Box(modifier = Modifier.fillMaxSize()) {
             // 全屏渐变背景
             AppBackground {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    // 主内容区域
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                    ) {
-                        when (currentTab) {
-                            AppTab.HOME -> HomeScreen(viewModel = viewModel, uiState = uiState)
-                            AppTab.HISTORY -> HistoryScreen(viewModel = viewModel)
-                        }
+                // 主内容区域（全屏，应用模糊效果，底部导航会覆盖在上面）
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .haze(state = hazeState)
+                ) {
+                    when (currentTab) {
+                        AppTab.HOME -> HomeScreen(viewModel = viewModel, uiState = uiState)
+                        AppTab.HISTORY -> HistoryScreen(viewModel = viewModel)
                     }
-
-                    // 毛玻璃底部导航
-                    GlassBottomNav(
-                        currentTab = currentTab,
-                        onTabSelected = { currentTab = it },
-                    )
                 }
+
+                // 高斯模糊毛玻璃底部导航（悬浮在底部）
+                GlassBottomNav(
+                    currentTab = currentTab,
+                    onTabSelected = { currentTab = it },
+                    hazeState = hazeState,
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                )
 
                 // Snackbar
                 SnackbarHost(
@@ -155,21 +160,39 @@ fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
 // ==================== 毛玻璃底部导航 ====================
 
 @Composable
-fun GlassBottomNav(currentTab: AppTab, onTabSelected: (AppTab) -> Unit) {
+fun GlassBottomNav(
+    currentTab: AppTab,
+    onTabSelected: (AppTab) -> Unit,
+    hazeState: HazeState,
+    modifier: Modifier = Modifier,
+) {
+    val shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-            .background(Color.White.copy(alpha = 0.06f))
+            .clip(shape)
+            .hazeChild(state = hazeState) {
+                backgroundColor = AppColors.bgTop.copy(alpha = 1f)
+                blurRadius = 24.dp
+                noiseFactor = 0.2f
+            }
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        AppColors.bgTop.copy(alpha = 0.6f),
+                        AppColors.bgBottom.copy(alpha = 0.7f),
+                    )
+                )
+            )
             .border(
                 width = 1.dp,
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color.White.copy(alpha = 0.12f),
-                        Color.White.copy(alpha = 0.04f),
+                        Color.White.copy(alpha = 0.15f),
+                        Color.White.copy(alpha = 0.05f),
                     )
                 ),
-                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+                shape = shape,
             )
             .navigationBarsPadding()
             .padding(top = 12.dp, bottom = 8.dp),
@@ -254,23 +277,23 @@ private fun NavItem(
 fun HomeScreen(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
     Column(
         modifier = Modifier
-            .safeContentPadding()
             .fillMaxSize()
+            .statusBarsPadding()
+            .padding(horizontal = 14.dp)
             .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(20.dp))
 
-        // App 标题
+        // App 标题 - 左对齐，使用 Orbitron 字体
         Text(
             text = "Checkinn",
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
+            fontFamily = OrbitronFamily,
             color = AppColors.textPrimary,
-            letterSpacing = (-0.5).sp,
+            letterSpacing = 0.sp,
+            modifier = Modifier.align(Alignment.Start),
         )
-
-        Spacer(modifier = Modifier.height(4.dp))
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -288,7 +311,8 @@ fun HomeScreen(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
 
         NfcWriteSection(viewModel = viewModel, uiState = uiState)
 
-        Spacer(modifier = Modifier.height(32.dp))
+        // 底部留白，避免内容被悬浮导航栏遮挡
+        Spacer(modifier = Modifier.height(100.dp))
     }
 }
 

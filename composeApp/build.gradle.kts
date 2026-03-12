@@ -52,6 +52,9 @@ kotlin {
             implementation(libs.compottie)
             implementation(libs.compottieDot)
             implementation(libs.compottieNetwork)
+            
+            // Haze - Gaussian Blur
+            implementation(libs.haze)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
