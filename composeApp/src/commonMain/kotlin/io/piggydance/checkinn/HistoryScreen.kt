@@ -86,7 +86,7 @@ fun HistoryScreen(viewModel: CheckinnViewModel) {
         }
 
         // 底部留白，避免内容被悬浮导航栏遮挡
-        Spacer(modifier = Modifier.height(120.dp))
+        Spacer(modifier = Modifier.height(130.dp))
     }
 }
 

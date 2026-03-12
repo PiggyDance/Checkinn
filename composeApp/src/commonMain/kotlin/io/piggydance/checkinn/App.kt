@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -194,6 +195,10 @@ fun GlassBottomNav(
                 ),
                 shape = shape,
             )
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+            ) { /* 消费点击事件，防止穿透到下层 */ }
             .navigationBarsPadding()
             .padding(top = 12.dp, bottom = 8.dp),
     ) {
@@ -312,7 +317,7 @@ fun HomeScreen(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
         NfcWriteSection(viewModel = viewModel, uiState = uiState)
 
         // 底部留白，避免内容被悬浮导航栏遮挡
-        Spacer(modifier = Modifier.height(100.dp))
+        Spacer(modifier = Modifier.height(130.dp))
     }
 }
 
@@ -350,106 +355,135 @@ fun StatusCard(uiState: CheckinnUiState) {
     val statusText = if (isWorking) "工作中" else "未上班"
     val statusDot = if (isWorking) AppColors.primary else AppColors.idle
 
+    val totalDuration = if (isWorking) {
+        val completedMs = uiState.todayRecord.sessions
+            .filter { it.clockOutTime != null }
+            .sumOf { it.durationMs }
+        val activeMs = uiState.todayRecord.activeSession?.let {
+            uiState.currentTimeMs - it.clockInTime
+        } ?: 0L
+        completedMs + activeMs
+    } else {
+        uiState.todayRecord.totalDurationMs
+    }
+
+    // 10小时目标（毫秒）
+    val targetMs = 10L * 60 * 60 * 1000
+    val remainingMs = targetMs - totalDuration
+    val progress = (totalDuration.toFloat() / targetMs).coerceIn(0f, 1f)
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
             .background(bgBrush)
             .border(1.dp, borderColor, RoundedCornerShape(24.dp))
-            .padding(28.dp),
+            .padding(24.dp),
     ) {
-        Column(
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            // 状态指示灯
-            Box(
-                modifier = Modifier
-                    .size(12.dp)
-                    .clip(CircleShape)
-                    .background(statusDot)
-                    .then(
-                        if (isWorking) Modifier.border(3.dp, statusDot.copy(alpha = 0.3f), CircleShape)
-                        else Modifier
+            // 左侧：状态指示灯 + 状态文字
+            Column(
+                horizontalAlignment = Alignment.Start,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // 状态指示灯
+                    Box(
+                        modifier = Modifier
+                            .size(12.dp)
+                            .clip(CircleShape)
+                            .background(statusDot)
+                            .then(
+                                if (isWorking) Modifier.border(3.dp, statusDot.copy(alpha = 0.3f), CircleShape)
+                                else Modifier
+                            )
                     )
-            )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = statusText,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = AppColors.textPrimary,
+                        letterSpacing = 0.5.sp,
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = statusText,
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold,
-                color = AppColors.textPrimary,
-                letterSpacing = 1.sp,
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            val totalDuration = if (isWorking) {
-                val completedMs = uiState.todayRecord.sessions
-                    .filter { it.clockOutTime != null }
-                    .sumOf { it.durationMs }
-                val activeMs = uiState.todayRecord.activeSession?.let {
-                    uiState.currentTimeMs - it.clockInTime
-                } ?: 0L
-                completedMs + activeMs
-            } else {
-                uiState.todayRecord.totalDurationMs
+                // 今日累计
+                Text(
+                    text = "今日累计",
+                    fontSize = 11.sp,
+                    color = AppColors.textMuted,
+                    letterSpacing = 0.5.sp,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = CheckinnViewModel.formatDuration(totalDuration),
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = JetBrainsMonoFamily,
+                    color = if (isWorking) AppColors.primaryLight else AppColors.textPrimary,
+                )
             }
 
-            Text(
-                text = "今日累计",
-                fontSize = 12.sp,
-                color = AppColors.textMuted,
-                letterSpacing = 1.sp,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = CheckinnViewModel.formatDuration(totalDuration),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold,
-                fontFamily = JetBrainsMonoFamily,
-                color = if (isWorking) AppColors.primaryLight else AppColors.textSecondary,
-            )
+            Spacer(modifier = Modifier.weight(1f))
 
-            if (isWorking) {
-                Spacer(modifier = Modifier.height(8.dp))
-                val activeSession = uiState.todayRecord.activeSession
-                if (activeSession != null) {
-                    val activeMs = uiState.currentTimeMs - activeSession.clockInTime
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+            // 右侧：目标进度（仅未上班时显示）
+            if (!isWorking && totalDuration > 0) {
+                Column(
+                    horizontalAlignment = Alignment.End,
+                ) {
+                    Text(
+                        text = "今日目标 10h",
+                        fontSize = 11.sp,
+                        color = AppColors.textMuted,
+                        letterSpacing = 0.5.sp,
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    
+                    // 进度条
+                    Box(
+                        modifier = Modifier
+                            .width(100.dp)
+                            .height(6.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(Color.White.copy(alpha = 0.1f))
+                    ) {
                         Box(
                             modifier = Modifier
-                                .size(6.dp)
-                                .clip(CircleShape)
-                                .background(AppColors.primary)
+                                .fillMaxHeight()
+                                .fillMaxWidth(progress)
+                                .background(
+                                    brush = Brush.horizontalGradient(
+                                        colors = listOf(AppColors.primary, AppColors.primaryLight)
+                                    )
+                                )
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
+                    }
+                    
+                    Spacer(modifier = Modifier.height(6.dp))
+                    
+                    if (remainingMs > 0) {
                         Text(
-                            text = "本段 ${CheckinnViewModel.formatDuration(activeMs)}",
-                            fontSize = 13.sp,
+                            text = "还差 ${CheckinnViewModel.formatDurationShort(remainingMs)}",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
                             fontFamily = JetBrainsMonoFamily,
-                            color = AppColors.textSecondary,
+                            color = AppColors.accent,
+                        )
+                    } else {
+                        Text(
+                            text = "已完成 ✓",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = AppColors.primary,
                         )
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-            // 分隔线
-            Box(
-                modifier = Modifier
-                    .width(60.dp)
-                    .height(1.dp)
-                    .background(AppColors.divider)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "打卡段数 ${uiState.todayRecord.sessions.size}",
-                fontSize = 12.sp,
-                color = AppColors.textMuted,
-            )
         }
     }
 }
@@ -473,7 +507,7 @@ fun SessionsCard(uiState: CheckinnUiState) {
         )
         Spacer(modifier = Modifier.height(12.dp))
 
-        uiState.todayRecord.sessions.forEachIndexed { index, session ->
+        uiState.todayRecord.sessions.asReversed().forEachIndexed { index, session ->
             val clockIn = formatTime(session.clockInTime)
             val clockOut = session.clockOutTime?.let { formatTime(it) } ?: "进行中"
             val durationText = if (session.clockOutTime != null) {
@@ -496,7 +530,7 @@ fun SessionsCard(uiState: CheckinnUiState) {
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "${index + 1}",
+                        text = "${uiState.todayRecord.sessions.size - index}",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = JetBrainsMonoFamily,
@@ -732,7 +766,7 @@ fun NfcWriteDialog(scene: NfcScene?, onDismiss: () -> Unit) {
 @Composable
 fun LottieOverlay(animationType: AnimationType, onDismiss: () -> Unit) {
     val lottieFile = when (animationType) {
-        AnimationType.CLOCK_IN -> "files/confetti.lottie"
+        AnimationType.CLOCK_IN -> "files/confetti-dots.lottie"
         AnimationType.CLOCK_OUT -> "files/confetti-dots.lottie"
         AnimationType.NONE -> return
     }
@@ -766,7 +800,9 @@ fun LottieOverlay(animationType: AnimationType, onDismiss: () -> Unit) {
             LottieAnimation(
                 composition = composition,
                 iterations = 1,
-                modifier = Modifier.size(280.dp),
+                modifier = Modifier
+                    .fillMaxWidth(0.7f)
+                    .aspectRatio(1f),
             )
 
             Spacer(modifier = Modifier.height(20.dp))
