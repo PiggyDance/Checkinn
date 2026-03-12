@@ -1,10 +1,14 @@
 package io.piggydance.checkinn
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,9 +17,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,14 +29,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -45,6 +44,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -81,37 +82,51 @@ fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
         }
     }
 
-    MaterialTheme {
+    CheckinnTheme {
         Box(modifier = Modifier.fillMaxSize()) {
-            Scaffold(
-                bottomBar = {
-                    BottomNav(
+            // 全屏渐变背景
+            AppBackground {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    // 主内容区域
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                    ) {
+                        when (currentTab) {
+                            AppTab.HOME -> HomeScreen(viewModel = viewModel, uiState = uiState)
+                            AppTab.HISTORY -> HistoryScreen(viewModel = viewModel)
+                        }
+                    }
+
+                    // 毛玻璃底部导航
+                    GlassBottomNav(
                         currentTab = currentTab,
                         onTabSelected = { currentTab = it },
                     )
-                },
-                snackbarHost = {
-                    SnackbarHost(hostState = snackbarHostState) { data ->
-                        Snackbar(
-                            snackbarData = data,
-                            shape = RoundedCornerShape(12.dp),
-                        )
-                    }
-                },
-            ) { innerPadding ->
-                Box(modifier = Modifier.padding(innerPadding)) {
-                    when (currentTab) {
-                        AppTab.HOME -> HomeScreen(viewModel = viewModel, uiState = uiState)
-                        AppTab.HISTORY -> HistoryScreen(viewModel = viewModel)
-                    }
+                }
+
+                // Snackbar
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 100.dp, start = 20.dp, end = 20.dp),
+                ) { data ->
+                    Snackbar(
+                        snackbarData = data,
+                        shape = RoundedCornerShape(16.dp),
+                        containerColor = Color.White.copy(alpha = 0.12f),
+                        contentColor = AppColors.textPrimary,
+                    )
                 }
             }
 
-            // Lottie 动画覆盖层 (全局覆盖)
+            // Lottie 动画覆盖层
             AnimatedVisibility(
                 visible = uiState.showAnimation,
-                enter = fadeIn(),
-                exit = fadeOut(),
+                enter = fadeIn(animationSpec = tween(300)),
+                exit = fadeOut(animationSpec = tween(300)),
                 modifier = Modifier.fillMaxSize(),
             ) {
                 LottieOverlay(
@@ -131,33 +146,89 @@ fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
     }
 }
 
+// ==================== 毛玻璃底部导航 ====================
+
 @Composable
-fun BottomNav(currentTab: AppTab, onTabSelected: (AppTab) -> Unit) {
-    NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface,
-        tonalElevation = 4.dp,
+fun GlassBottomNav(currentTab: AppTab, onTabSelected: (AppTab) -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+            .background(Color.White.copy(alpha = 0.06f))
+            .border(
+                width = 1.dp,
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0.12f),
+                        Color.White.copy(alpha = 0.04f),
+                    )
+                ),
+                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+            )
+            .navigationBarsPadding()
+            .padding(top = 12.dp, bottom = 8.dp),
     ) {
-        NavigationBarItem(
-            selected = currentTab == AppTab.HOME,
-            onClick = { onTabSelected(AppTab.HOME) },
-            icon = { Text("🏠", fontSize = 20.sp) },
-            label = { Text("打卡") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color(0xFF4CAF50),
-                selectedTextColor = Color(0xFF4CAF50),
-                indicatorColor = Color(0xFF4CAF50).copy(alpha = 0.12f),
-            ),
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            NavItem(
+                label = "打卡",
+                icon = "⏱",
+                isSelected = currentTab == AppTab.HOME,
+                onClick = { onTabSelected(AppTab.HOME) },
+            )
+            NavItem(
+                label = "记录",
+                icon = "📋",
+                isSelected = currentTab == AppTab.HISTORY,
+                onClick = { onTabSelected(AppTab.HISTORY) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun NavItem(
+    label: String,
+    icon: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    val indicatorColor by animateColorAsState(
+        targetValue = if (isSelected) AppColors.primary else Color.Transparent,
+        animationSpec = tween(250),
+    )
+    val textColor by animateColorAsState(
+        targetValue = if (isSelected) AppColors.primary else AppColors.textMuted,
+        animationSpec = tween(250),
+    )
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+            ) { onClick() }
+            .padding(horizontal = 24.dp, vertical = 4.dp),
+    ) {
+        Text(text = icon, fontSize = 22.sp)
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+            color = textColor,
         )
-        NavigationBarItem(
-            selected = currentTab == AppTab.HISTORY,
-            onClick = { onTabSelected(AppTab.HISTORY) },
-            icon = { Text("📊", fontSize = 20.sp) },
-            label = { Text("记录") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color(0xFF4CAF50),
-                selectedTextColor = Color(0xFF4CAF50),
-                indicatorColor = Color(0xFF4CAF50).copy(alpha = 0.12f),
-            ),
+        Spacer(modifier = Modifier.height(4.dp))
+        // 选中指示条
+        Box(
+            modifier = Modifier
+                .width(24.dp)
+                .height(3.dp)
+                .clip(RoundedCornerShape(1.5.dp))
+                .background(indicatorColor),
         )
     }
 }
@@ -174,36 +245,39 @@ fun HomeScreen(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
             .padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
+        // App 标题
         Text(
             text = "Checkinn",
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
+            color = AppColors.textPrimary,
+            letterSpacing = (-0.5).sp,
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
         Text(
             text = "NFC 智能打卡",
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontSize = 14.sp,
+            color = AppColors.textMuted,
+            letterSpacing = 2.sp,
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
         StatusCard(uiState = uiState)
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         SessionsCard(uiState = uiState)
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         ManualCheckButtons(viewModel = viewModel)
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         NfcWriteSection(viewModel = viewModel, uiState = uiState)
 
@@ -211,40 +285,75 @@ fun HomeScreen(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
     }
 }
 
-// ==================== 首页组件 ====================
+// ==================== 状态卡 ====================
 
 @Composable
 fun StatusCard(uiState: CheckinnUiState) {
     val isWorking = uiState.todayRecord.hasActiveSession
-    val bgColor = if (isWorking) Color(0xFF4CAF50) else Color(0xFF757575)
-    val statusText = if (isWorking) "工作中" else "未上班"
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = bgColor),
-        shape = RoundedCornerShape(20.dp),
+    // 工作中 = 绿色渐变毛玻璃, 未工作 = 普通毛玻璃
+    val bgBrush = if (isWorking) {
+        Brush.linearGradient(
+            colors = listOf(
+                AppColors.primary.copy(alpha = 0.20f),
+                AppColors.primaryDim.copy(alpha = 0.10f),
+            ),
+            start = Offset(0f, 0f),
+            end = Offset(600f, 400f),
+        )
+    } else {
+        Brush.linearGradient(
+            colors = listOf(
+                Color.White.copy(alpha = 0.06f),
+                Color.White.copy(alpha = 0.03f),
+            ),
+        )
+    }
+
+    val borderColor = if (isWorking) {
+        AppColors.primary.copy(alpha = 0.25f)
+    } else {
+        Color.White.copy(alpha = 0.08f)
+    }
+
+    val statusText = if (isWorking) "工作中" else "未上班"
+    val statusDot = if (isWorking) AppColors.primary else AppColors.idle
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp))
+            .background(bgBrush)
+            .border(1.dp, borderColor, RoundedCornerShape(24.dp))
+            .padding(28.dp),
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(24.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            // 状态指示灯
             Box(
                 modifier = Modifier
-                    .size(16.dp)
+                    .size(12.dp)
                     .clip(CircleShape)
-                    .background(if (isWorking) Color(0xFF81C784) else Color(0xFFBDBDBD))
+                    .background(statusDot)
+                    .then(
+                        if (isWorking) Modifier.border(3.dp, statusDot.copy(alpha = 0.3f), CircleShape)
+                        else Modifier
+                    )
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             Text(
                 text = statusText,
-                fontSize = 24.sp,
+                fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = AppColors.textPrimary,
+                letterSpacing = 1.sp,
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             val totalDuration = if (isWorking) {
                 val completedMs = uiState.todayRecord.sessions
@@ -259,175 +368,273 @@ fun StatusCard(uiState: CheckinnUiState) {
             }
 
             Text(
-                text = "今日累计: ${CheckinnViewModel.formatDuration(totalDuration)}",
-                fontSize = 18.sp,
-                color = Color.White.copy(alpha = 0.9f),
+                text = "今日累计",
+                fontSize = 12.sp,
+                color = AppColors.textMuted,
+                letterSpacing = 1.sp,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = CheckinnViewModel.formatDuration(totalDuration),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = if (isWorking) AppColors.primaryLight else AppColors.textSecondary,
             )
 
             if (isWorking) {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 val activeSession = uiState.todayRecord.activeSession
                 if (activeSession != null) {
                     val activeMs = uiState.currentTimeMs - activeSession.clockInTime
-                    Text(
-                        text = "本段: ${CheckinnViewModel.formatDuration(activeMs)}",
-                        fontSize = 14.sp,
-                        color = Color.White.copy(alpha = 0.7f),
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(CircleShape)
+                                .background(AppColors.primary)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "本段 ${CheckinnViewModel.formatDuration(activeMs)}",
+                            fontSize = 13.sp,
+                            color = AppColors.textSecondary,
+                        )
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+            // 分隔线
+            Box(
+                modifier = Modifier
+                    .width(60.dp)
+                    .height(1.dp)
+                    .background(AppColors.divider)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "打卡段数: ${uiState.todayRecord.sessions.size}",
-                fontSize = 14.sp,
-                color = Color.White.copy(alpha = 0.7f),
+                text = "打卡段数 ${uiState.todayRecord.sessions.size}",
+                fontSize = 12.sp,
+                color = AppColors.textMuted,
             )
         }
     }
 }
+
+// ==================== 工作时段卡 ====================
 
 @Composable
 fun SessionsCard(uiState: CheckinnUiState) {
     if (uiState.todayRecord.sessions.isEmpty()) return
 
-    Card(
+    GlassCardColumn(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        ),
+        cornerRadius = 20.dp,
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "今日工作时段",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = "今日工作时段",
+            fontSize = 15.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = AppColors.textPrimary,
+        )
+        Spacer(modifier = Modifier.height(14.dp))
 
-            uiState.todayRecord.sessions.forEachIndexed { index, session ->
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    val clockIn = formatTime(session.clockInTime)
-                    val clockOut = session.clockOutTime?.let { formatTime(it) } ?: "进行中..."
-                    val durationText = if (session.clockOutTime != null) {
-                        CheckinnViewModel.formatDuration(session.durationMs)
-                    } else {
-                        val activeMs = uiState.currentTimeMs - session.clockInTime
-                        CheckinnViewModel.formatDuration(activeMs)
+        uiState.todayRecord.sessions.forEachIndexed { index, session ->
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                val clockIn = formatTime(session.clockInTime)
+                val clockOut = session.clockOutTime?.let { formatTime(it) } ?: "进行中..."
+                val durationText = if (session.clockOutTime != null) {
+                    CheckinnViewModel.formatDuration(session.durationMs)
+                } else {
+                    val activeMs = uiState.currentTimeMs - session.clockInTime
+                    CheckinnViewModel.formatDuration(activeMs)
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // 序号标记
+                    Box(
+                        modifier = Modifier
+                            .size(22.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(AppColors.primary.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = "${index + 1}",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = AppColors.primary,
+                        )
                     }
-
+                    Spacer(modifier = Modifier.width(10.dp))
                     Text(
-                        text = "#${index + 1}  $clockIn → $clockOut",
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Text(
-                        text = durationText,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.primary,
+                        text = "$clockIn → $clockOut",
+                        fontSize = 13.sp,
+                        color = AppColors.textSecondary,
                     )
                 }
+                Text(
+                    text = durationText,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = AppColors.primaryLight,
+                )
+            }
+            // 分隔线 (除最后一条)
+            if (index < uiState.todayRecord.sessions.size - 1) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp)
+                        .height(1.dp)
+                        .background(AppColors.divider)
+                )
             }
         }
     }
 }
+
+// ==================== 手动打卡按钮 ====================
 
 @Composable
 fun ManualCheckButtons(viewModel: CheckinnViewModel) {
-    Card(
+    GlassCardColumn(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        ),
+        cornerRadius = 20.dp,
+        contentPadding = 16.dp,
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Text(
+            text = "手动打卡",
+            fontSize = 12.sp,
+            color = AppColors.textMuted,
+            letterSpacing = 1.sp,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
+        )
+        Spacer(modifier = Modifier.height(14.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text(
-                text = "手动打卡 (调试用)",
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
+            // 上班按钮 - 渐变绿
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(AppColors.primary, AppColors.primaryLight)
+                        )
+                    )
+                    .clickable { viewModel.onNfcScanned(NfcScene.CLOCK_IN) }
+                    .padding(vertical = 14.dp),
+                contentAlignment = Alignment.Center,
             ) {
-                Button(
-                    onClick = { viewModel.onNfcScanned(NfcScene.CLOCK_IN) },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
-                    shape = RoundedCornerShape(12.dp),
-                ) {
-                    Text("上班打卡", color = Color.White)
-                }
+                Text(
+                    text = "上班打卡",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White,
+                )
+            }
 
-                Button(
-                    onClick = { viewModel.onNfcScanned(NfcScene.CLOCK_OUT) },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),
-                    shape = RoundedCornerShape(12.dp),
-                ) {
-                    Text("下班打卡", color = Color.White)
-                }
+            // 下班按钮 - 渐变橙
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(AppColors.clockOut, AppColors.accent)
+                        )
+                    )
+                    .clickable { viewModel.onNfcScanned(NfcScene.CLOCK_OUT) }
+                    .padding(vertical = 14.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "下班打卡",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White,
+                )
             }
         }
     }
 }
+
+// ==================== NFC 写入区域 ====================
 
 @Composable
 fun NfcWriteSection(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
-    Card(
+    GlassCardColumn(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f)
-        ),
+        cornerRadius = 20.dp,
+        contentPadding = 16.dp,
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Text(
+            text = "NFC 贴纸设置",
+            fontSize = 15.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = AppColors.textPrimary,
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = "将打卡场景写入空白 NFC 贴纸",
+            fontSize = 12.sp,
+            color = AppColors.textMuted,
+        )
+        Spacer(modifier = Modifier.height(14.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text(
-                text = "NFC 贴纸设置",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "将打卡场景写入空白NFC贴纸",
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
+            // 写入上班卡 - 绿色描边
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(14.dp))
+                    .border(1.dp, AppColors.primary.copy(alpha = 0.4f), RoundedCornerShape(14.dp))
+                    .background(AppColors.primary.copy(alpha = 0.08f))
+                    .clickable { viewModel.enterWriteMode(NfcScene.CLOCK_IN) }
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center,
             ) {
-                OutlinedButton(
-                    onClick = { viewModel.enterWriteMode(NfcScene.CLOCK_IN) },
-                    shape = RoundedCornerShape(12.dp),
-                ) {
-                    Text("写入「上班」卡")
-                }
+                Text(
+                    text = "写入「上班」卡",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = AppColors.primaryLight,
+                )
+            }
 
-                OutlinedButton(
-                    onClick = { viewModel.enterWriteMode(NfcScene.CLOCK_OUT) },
-                    shape = RoundedCornerShape(12.dp),
-                ) {
-                    Text("写入「下班」卡")
-                }
+            // 写入下班卡 - 橙色描边
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(14.dp))
+                    .border(1.dp, AppColors.accent.copy(alpha = 0.4f), RoundedCornerShape(14.dp))
+                    .background(AppColors.accent.copy(alpha = 0.08f))
+                    .clickable { viewModel.enterWriteMode(NfcScene.CLOCK_OUT) }
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "写入「下班」卡",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = AppColors.accentLight,
+                )
             }
         }
     }
 }
+
+// ==================== NFC 写入对话框 ====================
 
 @Composable
 fun NfcWriteDialog(scene: NfcScene?, onDismiss: () -> Unit) {
@@ -439,30 +646,50 @@ fun NfcWriteDialog(scene: NfcScene?, onDismiss: () -> Unit) {
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("写入NFC贴纸") },
+        containerColor = AppColors.bgMid,
+        shape = RoundedCornerShape(24.dp),
+        title = {
+            Text(
+                "写入 NFC 贴纸",
+                color = AppColors.textPrimary,
+                fontWeight = FontWeight.SemiBold,
+            )
+        },
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "请将空白NFC贴纸贴近手机背面",
+                    text = "请将空白 NFC 贴纸贴近手机背面",
                     textAlign = TextAlign.Center,
+                    color = AppColors.textSecondary,
+                    fontSize = 14.sp,
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = "即将写入: 「$sceneText」",
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = AppColors.primaryLight,
                     textAlign = TextAlign.Center,
+                    fontSize = 16.sp,
                 )
             }
         },
         confirmButton = {},
         dismissButton = {
-            Button(onClick = onDismiss) {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White.copy(alpha = 0.08f),
+                    contentColor = AppColors.textSecondary,
+                ),
+                shape = RoundedCornerShape(12.dp),
+            ) {
                 Text("取消")
             }
         },
     )
 }
+
+// ==================== Lottie 动画覆盖层 ====================
 
 @Composable
 fun LottieOverlay(animationType: AnimationType, onDismiss: () -> Unit) {
@@ -486,7 +713,14 @@ fun LottieOverlay(animationType: AnimationType, onDismiss: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.3f))
+            .background(
+                Brush.radialGradient(
+                    colors = listOf(
+                        Color.Black.copy(alpha = 0.5f),
+                        Color.Black.copy(alpha = 0.7f),
+                    ),
+                )
+            )
             .clickable { onDismiss() },
         contentAlignment = Alignment.Center,
     ) {
@@ -494,20 +728,27 @@ fun LottieOverlay(animationType: AnimationType, onDismiss: () -> Unit) {
             LottieAnimation(
                 composition = composition,
                 iterations = 1,
-                modifier = Modifier.size(300.dp),
+                modifier = Modifier.size(280.dp),
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+
+            val msgColor = when (animationType) {
+                AnimationType.CLOCK_IN -> AppColors.primaryLight
+                AnimationType.CLOCK_OUT -> AppColors.accentLight
+                AnimationType.NONE -> Color.White
+            }
 
             Text(
                 text = when (animationType) {
-                    AnimationType.CLOCK_IN -> "上班打卡成功！"
-                    AnimationType.CLOCK_OUT -> "下班打卡成功！"
+                    AnimationType.CLOCK_IN -> "上班打卡成功!"
+                    AnimationType.CLOCK_OUT -> "下班打卡成功!"
                     AnimationType.NONE -> ""
                 },
-                fontSize = 24.sp,
+                fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = msgColor,
+                letterSpacing = 1.sp,
             )
         }
     }
