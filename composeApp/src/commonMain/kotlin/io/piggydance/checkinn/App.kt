@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,9 +27,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Fingerprint
+import androidx.compose.material.icons.rounded.InsertChartOutlined
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
@@ -47,6 +52,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -174,13 +180,13 @@ fun GlassBottomNav(currentTab: AppTab, onTabSelected: (AppTab) -> Unit) {
         ) {
             NavItem(
                 label = "打卡",
-                icon = "⏱",
+                icon = Icons.Rounded.Fingerprint,
                 isSelected = currentTab == AppTab.HOME,
                 onClick = { onTabSelected(AppTab.HOME) },
             )
             NavItem(
                 label = "记录",
-                icon = "📋",
+                icon = Icons.Rounded.InsertChartOutlined,
                 isSelected = currentTab == AppTab.HISTORY,
                 onClick = { onTabSelected(AppTab.HISTORY) },
             )
@@ -191,12 +197,16 @@ fun GlassBottomNav(currentTab: AppTab, onTabSelected: (AppTab) -> Unit) {
 @Composable
 private fun NavItem(
     label: String,
-    icon: String,
+    icon: ImageVector,
     isSelected: Boolean,
     onClick: () -> Unit,
 ) {
     val indicatorColor by animateColorAsState(
         targetValue = if (isSelected) AppColors.primary else Color.Transparent,
+        animationSpec = tween(250),
+    )
+    val iconColor by animateColorAsState(
+        targetValue = if (isSelected) AppColors.primary else AppColors.textMuted,
         animationSpec = tween(250),
     )
     val textColor by animateColorAsState(
@@ -213,11 +223,16 @@ private fun NavItem(
             ) { onClick() }
             .padding(horizontal = 24.dp, vertical = 4.dp),
     ) {
-        Text(text = icon, fontSize = 22.sp)
-        Spacer(modifier = Modifier.height(2.dp))
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = iconColor,
+            modifier = Modifier.size(24.dp),
+        )
+        Spacer(modifier = Modifier.height(3.dp))
         Text(
             text = label,
-            fontSize = 12.sp,
+            fontSize = 11.sp,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             color = textColor,
         )
@@ -241,8 +256,7 @@ fun HomeScreen(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
         modifier = Modifier
             .safeContentPadding()
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp),
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(20.dp))
@@ -257,13 +271,6 @@ fun HomeScreen(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
         )
 
         Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = "NFC 智能打卡",
-            fontSize = 14.sp,
-            color = AppColors.textMuted,
-            letterSpacing = 2.sp,
-        )
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -378,6 +385,7 @@ fun StatusCard(uiState: CheckinnUiState) {
                 text = CheckinnViewModel.formatDuration(totalDuration),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.SemiBold,
+                fontFamily = JetBrainsMonoFamily,
                 color = if (isWorking) AppColors.primaryLight else AppColors.textSecondary,
             )
 
@@ -397,6 +405,7 @@ fun StatusCard(uiState: CheckinnUiState) {
                         Text(
                             text = "本段 ${CheckinnViewModel.formatDuration(activeMs)}",
                             fontSize = 13.sp,
+                            fontFamily = JetBrainsMonoFamily,
                             color = AppColors.textSecondary,
                         )
                     }
@@ -430,6 +439,7 @@ fun SessionsCard(uiState: CheckinnUiState) {
     GlassCardColumn(
         modifier = Modifier.fillMaxWidth(),
         cornerRadius = 20.dp,
+        contentPadding = 16.dp,
     ) {
         Text(
             text = "今日工作时段",
@@ -437,50 +447,54 @@ fun SessionsCard(uiState: CheckinnUiState) {
             fontWeight = FontWeight.SemiBold,
             color = AppColors.textPrimary,
         )
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         uiState.todayRecord.sessions.forEachIndexed { index, session ->
+            val clockIn = formatTime(session.clockInTime)
+            val clockOut = session.clockOutTime?.let { formatTime(it) } ?: "进行中"
+            val durationText = if (session.clockOutTime != null) {
+                CheckinnViewModel.formatDuration(session.durationMs)
+            } else {
+                val activeMs = uiState.currentTimeMs - session.clockInTime
+                CheckinnViewModel.formatDuration(activeMs)
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                val clockIn = formatTime(session.clockInTime)
-                val clockOut = session.clockOutTime?.let { formatTime(it) } ?: "进行中..."
-                val durationText = if (session.clockOutTime != null) {
-                    CheckinnViewModel.formatDuration(session.durationMs)
-                } else {
-                    val activeMs = uiState.currentTimeMs - session.clockInTime
-                    CheckinnViewModel.formatDuration(activeMs)
-                }
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    // 序号标记
-                    Box(
-                        modifier = Modifier
-                            .size(22.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(AppColors.primary.copy(alpha = 0.15f)),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = "${index + 1}",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = AppColors.primary,
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(10.dp))
+                // 序号标记
+                Box(
+                    modifier = Modifier
+                        .size(22.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(AppColors.primary.copy(alpha = 0.15f)),
+                    contentAlignment = Alignment.Center,
+                ) {
                     Text(
-                        text = "$clockIn → $clockOut",
-                        fontSize = 13.sp,
-                        color = AppColors.textSecondary,
+                        text = "${index + 1}",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = JetBrainsMonoFamily,
+                        color = AppColors.primary,
                     )
                 }
+                Spacer(modifier = Modifier.width(8.dp))
+                // 时间区间 — 等宽字体
+                Text(
+                    text = "$clockIn → $clockOut",
+                    fontSize = 13.sp,
+                    fontFamily = JetBrainsMonoFamily,
+                    color = AppColors.textSecondary,
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                // 时长 — 等宽字体
                 Text(
                     text = durationText,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
+                    fontFamily = JetBrainsMonoFamily,
                     color = AppColors.primaryLight,
                 )
             }

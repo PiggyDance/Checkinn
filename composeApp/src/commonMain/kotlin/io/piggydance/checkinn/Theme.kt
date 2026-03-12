@@ -12,16 +12,26 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import checkinn.composeapp.generated.resources.Res
+import checkinn.composeapp.generated.resources.jetbrains_mono_bold
+import checkinn.composeapp.generated.resources.jetbrains_mono_medium
+import checkinn.composeapp.generated.resources.jetbrains_mono_regular
+import checkinn.composeapp.generated.resources.jetbrains_mono_semibold
+import org.jetbrains.compose.resources.Font
 
 // ========== 色板 ==========
 // 深色背景 + 薄荷绿主色 + 琥珀色强调，灵感来自 Financial Dashboard palette
@@ -143,15 +153,38 @@ private val AppTypography = Typography(
     ),
 )
 
+// ========== 内嵌等宽字体（防止系统字体覆盖） ==========
+
+/**
+ * 内嵌的 JetBrains Mono 字体族。
+ * 使用打包在 App 内部的 .ttf 文件，不受系统字体设置影响。
+ * 所有数字/时间显示都应使用此字体。
+ */
+val JetBrainsMonoFamily: FontFamily
+    @Composable get() = FontFamily(
+        Font(Res.font.jetbrains_mono_regular, FontWeight.Normal),
+        Font(Res.font.jetbrains_mono_medium, FontWeight.Medium),
+        Font(Res.font.jetbrains_mono_semibold, FontWeight.SemiBold),
+        Font(Res.font.jetbrains_mono_bold, FontWeight.Bold),
+    )
+
 // ========== 主题入口 ==========
 
 @Composable
 fun CheckinnTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = DarkColorScheme,
-        typography = AppTypography,
-        content = content,
+    // 锁定 fontScale = 1f，防止系统字体大小设置覆盖 App 内字号
+    val currentDensity = LocalDensity.current
+    val fixedDensity = Density(
+        density = currentDensity.density,
+        fontScale = 1f, // 强制不跟随系统字体缩放
     )
+    CompositionLocalProvider(LocalDensity provides fixedDensity) {
+        MaterialTheme(
+            colorScheme = DarkColorScheme,
+            typography = AppTypography,
+            content = content,
+        )
+    }
 }
 
 // ========== 渐变背景 ==========

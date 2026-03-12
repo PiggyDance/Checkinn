@@ -126,7 +126,7 @@ class CheckinnViewModel : ViewModel() {
                 showAnimation = true,
                 animationType = AnimationType.CLOCK_OUT,
                 currentTimeMs = now,
-                toastMessage = "下班打卡成功！今日累计工作 ${formatDuration(updatedRecord.totalDurationMs)}",
+                toastMessage = "下班打卡成功！今日累计工作 ${formatDurationChinese(updatedRecord.totalDurationMs)}",
             )
         }
     }
@@ -227,19 +227,21 @@ class CheckinnViewModel : ViewModel() {
     }
 
     companion object {
+        /** 固定宽度格式: "00:05:03" — 避免数字位数变化导致宽度跳变 */
         fun formatDuration(ms: Long): String {
             val totalSeconds = ms / 1000
-            val hours = totalSeconds / 3600
-            val minutes = (totalSeconds % 3600) / 60
-            val seconds = totalSeconds % 60
-            return "${hours}小时${minutes}分${seconds}秒"
+            val h = totalSeconds / 3600
+            val m = (totalSeconds % 3600) / 60
+            val s = totalSeconds % 60
+            return "${pad2(h)}:${pad2(m)}:${pad2(s)}"
         }
 
+        /** 固定宽度短格式: "08h05m" 或 "05m" */
         fun formatDurationShort(ms: Long): String {
             val totalMinutes = ms / 60000
-            val hours = totalMinutes / 60
-            val minutes = totalMinutes % 60
-            return if (hours > 0) "${hours}h${minutes}m" else "${minutes}m"
+            val h = totalMinutes / 60
+            val m = totalMinutes % 60
+            return if (h > 0) "${pad2(h)}h${pad2(m)}m" else "${pad2(m)}m"
         }
 
         fun formatHoursDecimal(ms: Long): String {
@@ -248,6 +250,17 @@ class CheckinnViewModel : ViewModel() {
             val tenthHour = (totalMinutes % 60) * 10 / 60
             return "${hours}.${tenthHour}"
         }
+
+        /** Toast 消息用中文格式: "1小时5分" */
+        fun formatDurationChinese(ms: Long): String {
+            val totalSeconds = ms / 1000
+            val h = totalSeconds / 3600
+            val m = (totalSeconds % 3600) / 60
+            return if (h > 0) "${h}小时${m}分" else "${m}分钟"
+        }
+
+        /** 两位补零 */
+        private fun pad2(n: Long): String = if (n < 10) "0$n" else "$n"
     }
 }
 

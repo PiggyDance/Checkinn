@@ -31,8 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -51,8 +49,7 @@ fun HistoryScreen(viewModel: CheckinnViewModel) {
         modifier = Modifier
             .safeContentPadding()
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp),
+            .verticalScroll(rememberScrollState()),
     ) {
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -308,6 +305,7 @@ fun WeekDayRow(
                             Text(
                                 text = "$clockIn - $clockOut",
                                 fontSize = 12.sp,
+                                fontFamily = JetBrainsMonoFamily,
                                 color = AppColors.textSecondary,
                             )
                         }
@@ -326,6 +324,7 @@ fun WeekDayRow(
                 text = if (hasData) CheckinnViewModel.formatDurationShort(totalMs) else "-",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
+                fontFamily = JetBrainsMonoFamily,
                 color = if (hasData) AppColors.primaryLight else AppColors.textMuted.copy(alpha = 0.3f),
                 modifier = Modifier.width(56.dp),
                 textAlign = TextAlign.End,
@@ -498,6 +497,7 @@ fun MonthDayCell(
                 Text(
                     text = CheckinnViewModel.formatHoursDecimal(totalMs) + "h",
                     fontSize = 10.sp,
+                    fontFamily = JetBrainsMonoFamily,
                     color = AppColors.primaryLight,
                     fontWeight = FontWeight.Medium,
                 )
@@ -558,6 +558,7 @@ fun StatItem(label: String, value: String) {
             text = value,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
+            fontFamily = JetBrainsMonoFamily,
             color = AppColors.primaryLight,
             letterSpacing = (-0.3).sp,
         )
@@ -601,6 +602,7 @@ fun DayDetailCard(record: DayRecord) {
                 text = "总时长 ${CheckinnViewModel.formatDuration(totalMs)}",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
+                fontFamily = JetBrainsMonoFamily,
                 color = AppColors.primaryLight,
             )
         }
@@ -616,35 +618,37 @@ fun DayDetailCard(record: DayRecord) {
 
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(AppColors.primary.copy(alpha = 0.12f)),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = "${index + 1}",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = AppColors.primary,
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(10.dp))
+                Box(
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(AppColors.primary.copy(alpha = 0.12f)),
+                    contentAlignment = Alignment.Center,
+                ) {
                     Text(
-                        text = "$clockIn → $clockOut",
-                        fontSize = 13.sp,
-                        color = AppColors.textSecondary,
+                        text = "${index + 1}",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = JetBrainsMonoFamily,
+                        color = AppColors.primary,
                     )
                 }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "$clockIn → $clockOut",
+                    fontSize = 13.sp,
+                    fontFamily = JetBrainsMonoFamily,
+                    color = AppColors.textSecondary,
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = dur,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
+                    fontFamily = JetBrainsMonoFamily,
                     color = AppColors.primaryLight,
                 )
             }
