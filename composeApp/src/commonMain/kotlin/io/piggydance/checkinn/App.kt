@@ -2,6 +2,7 @@ package io.piggydance.checkinn
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -29,6 +30,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Fingerprint
 import androidx.compose.material.icons.rounded.InsertChartOutlined
 import androidx.compose.material3.AlertDialog
@@ -50,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -494,20 +498,65 @@ fun StatusCard(uiState: CheckinnUiState) {
 fun SessionsCard(uiState: CheckinnUiState) {
     if (uiState.todayRecord.sessions.isEmpty()) return
 
+    // 折叠/展开状态
+    var isExpanded by remember { mutableStateOf(false) }
+    val sessions = uiState.todayRecord.sessions.asReversed()
+    val hasMore = sessions.size > 4
+    val displayedSessions = if (hasMore && !isExpanded) sessions.take(4) else sessions
+
     GlassCardColumn(
         modifier = Modifier.fillMaxWidth(),
         cornerRadius = 20.dp,
         contentPadding = 16.dp,
     ) {
-        Text(
-            text = "今日工作时段",
-            fontSize = 15.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = AppColors.textPrimary,
-        )
+        // 标题栏 - 如果超过4条，添加展开/收起按钮
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "今日工作时段",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = AppColors.textPrimary,
+            )
+            
+            if (hasMore) {
+                // 展开/收起按钮
+                val iconRotation by animateFloatAsState(
+                    targetValue = if (isExpanded) 180f else 0f,
+                    animationSpec = tween(300)
+                )
+                
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(AppColors.primary.copy(alpha = 0.12f))
+                        .clickable { isExpanded = !isExpanded }
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Text(
+                        text = if (isExpanded) "收起" else "展开全部",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = AppColors.primary,
+                    )
+                    Icon(
+                        imageVector = Icons.Rounded.ExpandMore,
+                        contentDescription = if (isExpanded) "收起" else "展开",
+                        tint = AppColors.primary,
+                        modifier = Modifier.size(16.dp).rotate(iconRotation),
+                    )
+                }
+            }
+        }
+        
         Spacer(modifier = Modifier.height(12.dp))
 
-        uiState.todayRecord.sessions.asReversed().forEachIndexed { index, session ->
+        displayedSessions.forEachIndexed { index, session ->
             val clockIn = formatTime(session.clockInTime)
             val clockOut = session.clockOutTime?.let { formatTime(it) } ?: "进行中"
             val durationText = if (session.clockOutTime != null) {
@@ -557,7 +606,7 @@ fun SessionsCard(uiState: CheckinnUiState) {
                 )
             }
             // 分隔线 (除最后一条)
-            if (index < uiState.todayRecord.sessions.size - 1) {
+            if (index < displayedSessions.size - 1) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
