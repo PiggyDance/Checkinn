@@ -1,3 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Checkinn</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="nav_clock">打卡</string>
+    <string name="nav_history">记录</string>
+    
+    <!-- Status -->
+    <string name="status_working">工作中</string>
+    <string name="status_idle">未上班</string>
+    <string name="today_total">今日累计</string>
+    <string name="today_goal">今日目标 10h</string>
+    <string name="remain_hours">还差 %s</string>
+    <string name="completed">已完成 ✓</string>
+    
+    <!-- Sessions -->
+    <string name="today_sessions">今日工作时段</string>
+    <string name="expand_all">展开全部</string>
+    <string name="collapse">收起</string>
+    <string name="in_progress">进行中</string>
+    
+    <!-- Manual Check -->
+    <string name="manual_check">手动打卡</string>
+    <string name="clock_in">上班打卡</string>
+    <string name="clock_out">下班打卡</string>
+    
+    <!-- NFC -->
+    <string name="nfc_setup">NFC 贴纸设置</string>
+    <string name="nfc_description">将打卡场景写入空白 NFC 贴纸</string>
+    <string name="write_clock_in">写入「上班」卡</string>
+    <string name="write_clock_out">写入「下班」卡</string>
+    <string name="nfc_write_dialog_title">写入 NFC 贴纸</string>
+    <string name="nfc_write_instruction">请将空白 NFC 贴纸贴近手机背面</string>
+    <string name="nfc_write_scene">即将写入: 「%s」</string>
+    <string name="cancel">取消</string>
+    
+    <!-- Toast Messages -->
+    <string name="toast_already_working">你已经在上班中了哦！</string>
+    <string name="toast_clock_in_success">上班打卡成功！开始计时 ⏱</string>
+    <string name="toast_no_clock_in">还没有上班打卡记录，请先上班打卡！</string>
+    <string name="toast_clock_out_success">下班打卡成功！今日累计工作 %s</string>
+    <string name="toast_nfc_write_success">NFC 贴纸写入成功！</string>
+    <string name="toast_nfc_write_failed">写入失败，请重试</string>
+    
+    <!-- Animation -->
+    <string name="anim_clock_in_success">上班打卡成功!</string>
+    <string name="anim_clock_out_success">下班打卡成功!</string>
+    
+    <!-- History -->
+    <string name="view_week">周视图</string>
+    <string name="view_month">月视图</string>
+    <string name="week_format">%s周</string>
+    <string name="month_format">%s月</string>
+    <string name="day_details">%s 记录</string>
+    <string name="total_duration">总时长</string>
+    <string name="no_record">暂无记录</string>
+    <string name="work_hours">%s 工时</string>
+    
+    <!-- Day of Week -->
+    <string name="monday_short">周一</string>
+    <string name="tuesday_short">周二</string>
+    <string name="wednesday_short">周三</string>
+    <string name="thursday_short">周四</string>
+    <string name="friday_short">周五</string>
+    <string name="saturday_short">周六</string>
+    <string name="sunday_short">周日</string>
+    
+    <string name="monday">星期一</string>
+    <string name="tuesday">星期二</string>
+    <string name="wednesday">星期三</string>
+    <string name="thursday">星期四</string>
+    <string name="friday">星期五</string>
+    <string name="saturday">星期六</string>
+    <string name="sunday">星期日</string>
+    
+    <!-- Settings -->
+    <string name="settings">设置</string>
+    <string name="language">语言</string>
+    <string name="select_language">选择语言</string>
 </resources>

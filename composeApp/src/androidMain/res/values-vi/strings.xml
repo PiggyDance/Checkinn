@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Checkinn</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="nav_clock">Chấm công</string>
+    <string name="nav_history">Lịch sử</string>
+    
+    <!-- Status -->
+    <string name="status_working">Đang làm việc</string>
+    <string name="status_idle">Chưa vào làm</string>
+    <string name="today_total">Tổng hôm nay</string>
+    <string name="today_goal">Mục tiêu hôm nay 10h</string>
+    <string name="remain_hours">Còn lại %s</string>
+    <string name="completed">Hoàn thành ✓</string>
+    
+    <!-- Sessions -->
+    <string name="today_sessions">Ca làm việc hôm nay</string>
+    <string name="expand_all">Mở rộng tất cả</string>
+    <string name="collapse">Thu gọn</string>
+    <string name="in_progress">Đang tiến hành</string>
+    
+    <!-- Manual Check -->
+    <string name="manual_check">Chấm công thủ công</string>
+    <string name="clock_in">Vào ca</string>
+    <string name="clock_out">Tan ca</string>
+    
+    <!-- NFC -->
+    <string name="nfc_setup">Cài đặt nhãn dán NFC</string>
+    <string name="nfc_description">Ghi thông tin chấm công vào nhãn dán NFC trống</string>
+    <string name="write_clock_in">Ghi thẻ「Vào ca」</string>
+    <string name="write_clock_out">Ghi thẻ「Tan ca」</string>
+    <string name="nfc_write_dialog_title">Ghi nhãn dán NFC</string>
+    <string name="nfc_write_instruction">Vui lòng đặt nhãn dán NFC trống gần mặt sau điện thoại</string>
+    <string name="nfc_write_scene">Sắp ghi: 「%s」</string>
+    <string name="cancel">Hủy</string>
+    
+    <!-- Toast Messages -->
+    <string name="toast_already_working">Bạn đã vào ca rồi!</string>
+    <string name="toast_clock_in_success">Vào ca thành công! Bắt đầu đếm giờ ⏱</string>
+    <string name="toast_no_clock_in">Chưa có bản ghi vào ca. Vui lòng vào ca trước!</string>
+    <string name="toast_clock_out_success">Tan ca thành công! Tổng thời gian làm việc hôm nay %s</string>
+    <string name="toast_nfc_write_success">Ghi nhãn dán NFC thành công!</string>
+    <string name="toast_nfc_write_failed">Ghi thất bại, vui lòng thử lại</string>
+    
+    <!-- Animation -->
+    <string name="anim_clock_in_success">Vào ca thành công!</string>
+    <string name="anim_clock_out_success">Tan ca thành công!</string>
+    
+    <!-- History -->
+    <string name="view_week">Xem theo tuần</string>
+    <string name="view_month">Xem theo tháng</string>
+    <string name="week_format">Tuần %s</string>
+    <string name="month_format">Tháng %s</string>
+    <string name="day_details">Bản ghi %s</string>
+    <string name="total_duration">Tổng thời gian</string>
+    <string name="no_record">Không có bản ghi</string>
+    <string name="work_hours">%s giờ làm</string>
+    
+    <!-- Day of Week -->
+    <string name="monday_short">T2</string>
+    <string name="tuesday_short">T3</string>
+    <string name="wednesday_short">T4</string>
+    <string name="thursday_short">T5</string>
+    <string name="friday_short">T6</string>
+    <string name="saturday_short">T7</string>
+    <string name="sunday_short">CN</string>
+    
+    <string name="monday">Thứ Hai</string>
+    <string name="tuesday">Thứ Ba</string>
+    <string name="wednesday">Thứ Tư</string>
+    <string name="thursday">Thứ Năm</string>
+    <string name="friday">Thứ Sáu</string>
+    <string name="saturday">Thứ Bảy</string>
+    <string name="sunday">Chủ Nhật</string>
+    
+    <!-- Settings -->
+    <string name="settings">Cài đặt</string>
+    <string name="language">Ngôn ngữ</string>
+    <string name="select_language">Chọn ngôn ngữ</string>
+</resources>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Checkinn</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="nav_clock">Отметка</string>
+    <string name="nav_history">История</string>
+    
+    <!-- Status -->
+    <string name="status_working">Работаю</string>
+    <string name="status_idle">Не на работе</string>
+    <string name="today_total">Сегодня всего</string>
+    <string name="today_goal">Цель на сегодня 10ч</string>
+    <string name="remain_hours">Осталось %s</string>
+    <string name="completed">Выполнено ✓</string>
+    
+    <!-- Sessions -->
+    <string name="today_sessions">Сегодняшние рабочие сессии</string>
+    <string name="expand_all">Развернуть все</string>
+    <string name="collapse">Свернуть</string>
+    <string name="in_progress">В процессе</string>
+    
+    <!-- Manual Check -->
+    <string name="manual_check">Ручная отметка</string>
+    <string name="clock_in">Отметить приход</string>
+    <string name="clock_out">Отметить уход</string>
+    
+    <!-- NFC -->
+    <string name="nfc_setup">Настройка наклейки NFC</string>
+    <string name="nfc_description">Записать сценарий отметки на пустую наклейку NFC</string>
+    <string name="write_clock_in">Записать карту「Приход」</string>
+    <string name="write_clock_out">Записать карту「Уход」</string>
+    <string name="nfc_write_dialog_title">Запись наклейки NFC</string>
+    <string name="nfc_write_instruction">Пожалуйста, поднесите пустую наклейку NFC к задней части телефона</string>
+    <string name="nfc_write_scene">Будет записано: 「%s」</string>
+    <string name="cancel">Отмена</string>
+    
+    <!-- Toast Messages -->
+    <string name="toast_already_working">Вы уже отметили приход!</string>
+    <string name="toast_clock_in_success">Приход отмечен! Таймер запущен ⏱</string>
+    <string name="toast_no_clock_in">Нет записи о приходе. Пожалуйста, сначала отметьте приход!</string>
+    <string name="toast_clock_out_success">Уход отмечен! Всего отработано сегодня: %s</string>
+    <string name="toast_nfc_write_success">Наклейка NFC успешно записана!</string>
+    <string name="toast_nfc_write_failed">Ошибка записи, пожалуйста, попробуйте еще раз</string>
+    
+    <!-- Animation -->
+    <string name="anim_clock_in_success">Приход отмечен!</string>
+    <string name="anim_clock_out_success">Уход отмечен!</string>
+    
+    <!-- History -->
+    <string name="view_week">Недельный вид</string>
+    <string name="view_month">Месячный вид</string>
+    <string name="week_format">Неделя %s</string>
+    <string name="month_format">%s</string>
+    <string name="day_details">Записи %s</string>
+    <string name="total_duration">Общая продолжительность</string>
+    <string name="no_record">Нет записей</string>
+    <string name="work_hours">%s часов</string>
+    
+    <!-- Day of Week -->
+    <string name="monday_short">Пн</string>
+    <string name="tuesday_short">Вт</string>
+    <string name="wednesday_short">Ср</string>
+    <string name="thursday_short">Чт</string>
+    <string name="friday_short">Пт</string>
+    <string name="saturday_short">Сб</string>
+    <string name="sunday_short">Вс</string>
+    
+    <string name="monday">Понедельник</string>
+    <string name="tuesday">Вторник</string>
+    <string name="wednesday">Среда</string>
+    <string name="thursday">Четверг</string>
+    <string name="friday">Пятница</string>
+    <string name="saturday">Суббота</string>
+    <string name="sunday">Воскресенье</string>
+    
+    <!-- Settings -->
+    <string name="settings">Настройки</string>
+    <string name="language">Язык</string>
+    <string name="select_language">Выбрать язык</string>
+</resources>

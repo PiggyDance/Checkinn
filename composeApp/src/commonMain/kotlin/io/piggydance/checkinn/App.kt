@@ -81,6 +81,7 @@ fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
     val snackbarHostState = remember { SnackbarHostState() }
     var currentTab by remember { mutableStateOf(AppTab.HOME) }
     val hazeState = remember { HazeState() }
+    val strings = remember { getStringResources() }
 
     // 每秒刷新一次当前时间
     LaunchedEffect(uiState.todayRecord.hasActiveSession) {
@@ -119,6 +120,7 @@ fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
                     currentTab = currentTab,
                     onTabSelected = { currentTab = it },
                     hazeState = hazeState,
+                    strings = strings,
                     modifier = Modifier.align(Alignment.BottomCenter),
                 )
 
@@ -147,6 +149,7 @@ fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
             ) {
                 LottieOverlay(
                     animationType = uiState.animationType,
+                    strings = strings,
                     onDismiss = { viewModel.dismissAnimation() },
                 )
             }
@@ -155,6 +158,7 @@ fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
             if (uiState.isWriteMode) {
                 NfcWriteDialog(
                     scene = uiState.writeScene,
+                    strings = strings,
                     onDismiss = { viewModel.exitWriteMode() },
                 )
             }
@@ -169,6 +173,7 @@ fun GlassBottomNav(
     currentTab: AppTab,
     onTabSelected: (AppTab) -> Unit,
     hazeState: HazeState,
+    strings: StringResources,
     modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
@@ -211,13 +216,13 @@ fun GlassBottomNav(
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             NavItem(
-                label = "打卡",
+                label = strings.navClock(),
                 icon = Icons.Rounded.Fingerprint,
                 isSelected = currentTab == AppTab.HOME,
                 onClick = { onTabSelected(AppTab.HOME) },
             )
             NavItem(
-                label = "记录",
+                label = strings.navHistory(),
                 icon = Icons.Rounded.InsertChartOutlined,
                 isSelected = currentTab == AppTab.HISTORY,
                 onClick = { onTabSelected(AppTab.HISTORY) },
@@ -284,6 +289,8 @@ private fun NavItem(
 
 @Composable
 fun HomeScreen(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
+    val strings = remember { getStringResources() }
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -306,19 +313,19 @@ fun HomeScreen(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        StatusCard(uiState = uiState)
+        StatusCard(uiState = uiState, strings = strings)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        SessionsCard(uiState = uiState)
+        SessionsCard(uiState = uiState, strings = strings)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        ManualCheckButtons(viewModel = viewModel)
+        ManualCheckButtons(viewModel = viewModel, strings = strings)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        NfcWriteSection(viewModel = viewModel, uiState = uiState)
+        NfcWriteSection(viewModel = viewModel, uiState = uiState, strings = strings)
 
         // 底部留白，避免内容被悬浮导航栏遮挡
         Spacer(modifier = Modifier.height(130.dp))
@@ -328,7 +335,7 @@ fun HomeScreen(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
 // ==================== 状态卡 ====================
 
 @Composable
-fun StatusCard(uiState: CheckinnUiState) {
+fun StatusCard(uiState: CheckinnUiState, strings: StringResources) {
     val isWorking = uiState.todayRecord.hasActiveSession
 
     // 工作中 = 绿色渐变毛玻璃, 未工作 = 普通毛玻璃
@@ -356,7 +363,7 @@ fun StatusCard(uiState: CheckinnUiState) {
         Color.White.copy(alpha = 0.08f)
     }
 
-    val statusText = if (isWorking) "工作中" else "未上班"
+    val statusText = if (isWorking) strings.statusWorking() else strings.statusIdle()
     val statusDot = if (isWorking) AppColors.primary else AppColors.idle
 
     val totalDuration = if (isWorking) {
@@ -418,7 +425,7 @@ fun StatusCard(uiState: CheckinnUiState) {
 
                 // 今日累计
                 Text(
-                    text = "今日累计",
+                    text = strings.todayTotal(),
                     fontSize = 11.sp,
                     color = AppColors.textMuted,
                     letterSpacing = 0.5.sp,
@@ -441,7 +448,7 @@ fun StatusCard(uiState: CheckinnUiState) {
                     horizontalAlignment = Alignment.End,
                 ) {
                     Text(
-                        text = "今日目标 10h",
+                        text = strings.todayGoal(),
                         fontSize = 11.sp,
                         color = AppColors.textMuted,
                         letterSpacing = 0.5.sp,
@@ -472,7 +479,7 @@ fun StatusCard(uiState: CheckinnUiState) {
                     
                     if (remainingMs > 0) {
                         Text(
-                            text = "还差 ${CheckinnViewModel.formatDurationShort(remainingMs)}",
+                            text = strings.remainHours(CheckinnViewModel.formatDurationShort(remainingMs)),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
                             fontFamily = JetBrainsMonoFamily,
@@ -480,7 +487,7 @@ fun StatusCard(uiState: CheckinnUiState) {
                         )
                     } else {
                         Text(
-                            text = "已完成 ✓",
+                            text = strings.completed(),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
                             color = AppColors.primary,
@@ -495,7 +502,7 @@ fun StatusCard(uiState: CheckinnUiState) {
 // ==================== 工作时段卡 ====================
 
 @Composable
-fun SessionsCard(uiState: CheckinnUiState) {
+fun SessionsCard(uiState: CheckinnUiState, strings: StringResources) {
     if (uiState.todayRecord.sessions.isEmpty()) return
 
     // 折叠/展开状态
@@ -516,7 +523,7 @@ fun SessionsCard(uiState: CheckinnUiState) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "今日工作时段",
+                text = strings.todaySessions(),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = AppColors.textPrimary,
@@ -539,14 +546,14 @@ fun SessionsCard(uiState: CheckinnUiState) {
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Text(
-                        text = if (isExpanded) "收起" else "展开全部",
+                        text = if (isExpanded) strings.collapse() else strings.expandAll(),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         color = AppColors.primary,
                     )
                     Icon(
                         imageVector = Icons.Rounded.ExpandMore,
-                        contentDescription = if (isExpanded) "收起" else "展开",
+                        contentDescription = if (isExpanded) strings.collapse() else strings.expandAll(),
                         tint = AppColors.primary,
                         modifier = Modifier.size(16.dp).rotate(iconRotation),
                     )
@@ -558,7 +565,7 @@ fun SessionsCard(uiState: CheckinnUiState) {
 
         displayedSessions.forEachIndexed { index, session ->
             val clockIn = formatTime(session.clockInTime)
-            val clockOut = session.clockOutTime?.let { formatTime(it) } ?: "进行中"
+            val clockOut = session.clockOutTime?.let { formatTime(it) } ?: strings.inProgress()
             val durationText = if (session.clockOutTime != null) {
                 CheckinnViewModel.formatDuration(session.durationMs)
             } else {
@@ -622,14 +629,14 @@ fun SessionsCard(uiState: CheckinnUiState) {
 // ==================== 手动打卡按钮 ====================
 
 @Composable
-fun ManualCheckButtons(viewModel: CheckinnViewModel) {
+fun ManualCheckButtons(viewModel: CheckinnViewModel, strings: StringResources) {
     GlassCardColumn(
         modifier = Modifier.fillMaxWidth(),
         cornerRadius = 20.dp,
         contentPadding = 16.dp,
     ) {
         Text(
-            text = "手动打卡",
+            text = strings.manualCheck(),
             fontSize = 12.sp,
             color = AppColors.textMuted,
             letterSpacing = 1.sp,
@@ -656,7 +663,7 @@ fun ManualCheckButtons(viewModel: CheckinnViewModel) {
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "上班打卡",
+                    text = strings.clockIn(),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White,
@@ -678,7 +685,7 @@ fun ManualCheckButtons(viewModel: CheckinnViewModel) {
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "下班打卡",
+                    text = strings.clockOut(),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White,
@@ -691,21 +698,21 @@ fun ManualCheckButtons(viewModel: CheckinnViewModel) {
 // ==================== NFC 写入区域 ====================
 
 @Composable
-fun NfcWriteSection(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
+fun NfcWriteSection(viewModel: CheckinnViewModel, uiState: CheckinnUiState, strings: StringResources) {
     GlassCardColumn(
         modifier = Modifier.fillMaxWidth(),
         cornerRadius = 20.dp,
         contentPadding = 16.dp,
     ) {
         Text(
-            text = "NFC 贴纸设置",
+            text = strings.nfcSetup(),
             fontSize = 15.sp,
             fontWeight = FontWeight.SemiBold,
             color = AppColors.textPrimary,
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(
-            text = "将打卡场景写入空白 NFC 贴纸",
+            text = strings.nfcDescription(),
             fontSize = 12.sp,
             color = AppColors.textMuted,
         )
@@ -726,7 +733,7 @@ fun NfcWriteSection(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "写入「上班」卡",
+                    text = strings.writeClockIn(),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
                     color = AppColors.primaryLight,
@@ -745,7 +752,7 @@ fun NfcWriteSection(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "写入「下班」卡",
+                    text = strings.writeClockOut(),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
                     color = AppColors.accentLight,
@@ -758,10 +765,10 @@ fun NfcWriteSection(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
 // ==================== NFC 写入对话框 ====================
 
 @Composable
-fun NfcWriteDialog(scene: NfcScene?, onDismiss: () -> Unit) {
+fun NfcWriteDialog(scene: NfcScene?, strings: StringResources, onDismiss: () -> Unit) {
     val sceneText = when (scene) {
-        NfcScene.CLOCK_IN -> "上班打卡"
-        NfcScene.CLOCK_OUT -> "下班打卡"
+        NfcScene.CLOCK_IN -> strings.clockIn()
+        NfcScene.CLOCK_OUT -> strings.clockOut()
         null -> ""
     }
 
@@ -771,7 +778,7 @@ fun NfcWriteDialog(scene: NfcScene?, onDismiss: () -> Unit) {
         shape = RoundedCornerShape(24.dp),
         title = {
             Text(
-                "写入 NFC 贴纸",
+                strings.nfcWriteDialogTitle(),
                 color = AppColors.textPrimary,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -779,14 +786,14 @@ fun NfcWriteDialog(scene: NfcScene?, onDismiss: () -> Unit) {
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "请将空白 NFC 贴纸贴近手机背面",
+                    text = strings.nfcWriteInstruction(),
                     textAlign = TextAlign.Center,
                     color = AppColors.textSecondary,
                     fontSize = 14.sp,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "即将写入: 「$sceneText」",
+                    text = strings.nfcWriteScene(sceneText),
                     fontWeight = FontWeight.Bold,
                     color = AppColors.primaryLight,
                     textAlign = TextAlign.Center,
@@ -804,7 +811,7 @@ fun NfcWriteDialog(scene: NfcScene?, onDismiss: () -> Unit) {
                 ),
                 shape = RoundedCornerShape(12.dp),
             ) {
-                Text("取消")
+                Text(strings.cancel())
             }
         },
     )
@@ -813,7 +820,7 @@ fun NfcWriteDialog(scene: NfcScene?, onDismiss: () -> Unit) {
 // ==================== Lottie 动画覆盖层 ====================
 
 @Composable
-fun LottieOverlay(animationType: AnimationType, onDismiss: () -> Unit) {
+fun LottieOverlay(animationType: AnimationType, strings: StringResources, onDismiss: () -> Unit) {
     val lottieFile = when (animationType) {
         AnimationType.CLOCK_IN -> "files/confetti-dots.lottie"
         AnimationType.CLOCK_OUT -> "files/confetti-dots.lottie"
@@ -864,8 +871,8 @@ fun LottieOverlay(animationType: AnimationType, onDismiss: () -> Unit) {
 
             Text(
                 text = when (animationType) {
-                    AnimationType.CLOCK_IN -> "上班打卡成功!"
-                    AnimationType.CLOCK_OUT -> "下班打卡成功!"
+                    AnimationType.CLOCK_IN -> strings.animClockInSuccess()
+                    AnimationType.CLOCK_OUT -> strings.animClockOutSuccess()
                     AnimationType.NONE -> ""
                 },
                 fontSize = 26.sp,

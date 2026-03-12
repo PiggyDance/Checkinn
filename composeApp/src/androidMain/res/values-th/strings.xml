@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Checkinn</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="nav_clock">ลงเวลา</string>
+    <string name="nav_history">ประวัติ</string>
+    
+    <!-- Status -->
+    <string name="status_working">กำลังทำงาน</string>
+    <string name="status_idle">ยังไม่เข้างาน</string>
+    <string name="today_total">ยอดรวมวันนี้</string>
+    <string name="today_goal">เป้าหมายวันนี้ 10 ชม.</string>
+    <string name="remain_hours">เหลืออีก %s</string>
+    <string name="completed">เสร็จสิ้น ✓</string>
+    
+    <!-- Sessions -->
+    <string name="today_sessions">ช่วงเวลาทำงานวันนี้</string>
+    <string name="expand_all">ขยายทั้งหมด</string>
+    <string name="collapse">ย่อ</string>
+    <string name="in_progress">กำลังดำเนินการ</string>
+    
+    <!-- Manual Check -->
+    <string name="manual_check">ลงเวลาด้วยตนเอง</string>
+    <string name="clock_in">ลงเวลาเข้างาน</string>
+    <string name="clock_out">ลงเวลาออกงาน</string>
+    
+    <!-- NFC -->
+    <string name="nfc_setup">ตั้งค่าสติกเกอร์ NFC</string>
+    <string name="nfc_description">เขียนข้อมูลลงเวลาลงสติกเกอร์ NFC เปล่า</string>
+    <string name="write_clock_in">เขียนการ์ด「เข้างาน」</string>
+    <string name="write_clock_out">เขียนการ์ด「ออกงาน」</string>
+    <string name="nfc_write_dialog_title">เขียนสติกเกอร์ NFC</string>
+    <string name="nfc_write_instruction">โปรดวางสติกเกอร์ NFC เปล่าใกล้ด้านหลังโทรศัพท์</string>
+    <string name="nfc_write_scene">กำลังจะเขียน: 「%s」</string>
+    <string name="cancel">ยกเลิก</string>
+    
+    <!-- Toast Messages -->
+    <string name="toast_already_working">คุณลงเวลาเข้างานแล้ว!</string>
+    <string name="toast_clock_in_success">ลงเวลาเข้างานสำเร็จ! เริ่มจับเวลา ⏱</string>
+    <string name="toast_no_clock_in">ยังไม่มีบันทึกการลงเวลาเข้างาน โปรดลงเวลาเข้างานก่อน!</string>
+    <string name="toast_clock_out_success">ลงเวลาออกงานสำเร็จ! ทำงานรวมวันนี้ %s</string>
+    <string name="toast_nfc_write_success">เขียนสติกเกอร์ NFC สำเร็จ!</string>
+    <string name="toast_nfc_write_failed">เขียนล้มเหลว โปรดลองอีกครั้ง</string>
+    
+    <!-- Animation -->
+    <string name="anim_clock_in_success">ลงเวลาเข้างานสำเร็จ!</string>
+    <string name="anim_clock_out_success">ลงเวลาออกงานสำเร็จ!</string>
+    
+    <!-- History -->
+    <string name="view_week">มุมมองสัปดาห์</string>
+    <string name="view_month">มุมมองเดือน</string>
+    <string name="week_format">สัปดาห์ %s</string>
+    <string name="month_format">%s</string>
+    <string name="day_details">บันทึก %s</string>
+    <string name="total_duration">ระยะเวลารวม</string>
+    <string name="no_record">ไม่มีบันทึก</string>
+    <string name="work_hours">%s ชั่วโมง</string>
+    
+    <!-- Day of Week -->
+    <string name="monday_short">จ.</string>
+    <string name="tuesday_short">อ.</string>
+    <string name="wednesday_short">พ.</string>
+    <string name="thursday_short">พฤ.</string>
+    <string name="friday_short">ศ.</string>
+    <string name="saturday_short">ส.</string>
+    <string name="sunday_short">อา.</string>
+    
+    <string name="monday">วันจันทร์</string>
+    <string name="tuesday">วันอังคาร</string>
+    <string name="wednesday">วันพุธ</string>
+    <string name="thursday">วันพฤหัสบดี</string>
+    <string name="friday">วันศุกร์</string>
+    <string name="saturday">วันเสาร์</string>
+    <string name="sunday">วันอาทิตย์</string>
+    
+    <!-- Settings -->
+    <string name="settings">การตั้งค่า</string>
+    <string name="language">ภาษา</string>
+    <string name="select_language">เลือกภาษา</string>
+</resources>

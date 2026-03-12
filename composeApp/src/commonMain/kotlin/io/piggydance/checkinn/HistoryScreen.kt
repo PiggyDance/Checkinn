@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun HistoryScreen(viewModel: CheckinnViewModel) {
     val uiState by viewModel.uiState.collectAsState()
+    val strings = remember { getStringResources() }
 
     LaunchedEffect(Unit) {
         viewModel.initHistory()
@@ -55,7 +56,7 @@ fun HistoryScreen(viewModel: CheckinnViewModel) {
         Spacer(modifier = Modifier.height(20.dp))
 
         Text(
-            text = "打卡记录",
+            text = strings.navHistory(),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = AppColors.textPrimary,
@@ -67,21 +68,22 @@ fun HistoryScreen(viewModel: CheckinnViewModel) {
         // 周/月切换 — 胶囊式分段控制
         ViewModeSelector(
             currentMode = uiState.historyViewMode,
+            strings = strings,
             onModeChanged = { viewModel.switchHistoryMode(it) },
         )
 
         Spacer(modifier = Modifier.height(20.dp))
 
         when (uiState.historyViewMode) {
-            HistoryViewMode.WEEK -> WeekView(uiState = uiState, viewModel = viewModel)
-            HistoryViewMode.MONTH -> MonthView(uiState = uiState, viewModel = viewModel)
+            HistoryViewMode.WEEK -> WeekView(uiState = uiState, viewModel = viewModel, strings = strings)
+            HistoryViewMode.MONTH -> MonthView(uiState = uiState, viewModel = viewModel, strings = strings)
         }
 
         // 选中日的详情
         uiState.selectedDayRecord?.let { record ->
             if (record.sessions.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(16.dp))
-                DayDetailCard(record = record)
+                DayDetailCard(record = record, strings = strings)
             }
         }
 
@@ -93,7 +95,7 @@ fun HistoryScreen(viewModel: CheckinnViewModel) {
 // ==================== 胶囊分段控制 ====================
 
 @Composable
-fun ViewModeSelector(currentMode: HistoryViewMode, onModeChanged: (HistoryViewMode) -> Unit) {
+fun ViewModeSelector(currentMode: HistoryViewMode, strings: StringResources, onModeChanged: (HistoryViewMode) -> Unit) {
     // 胶囊底色
     Box(
         modifier = Modifier
@@ -105,13 +107,13 @@ fun ViewModeSelector(currentMode: HistoryViewMode, onModeChanged: (HistoryViewMo
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
             SegmentItem(
-                label = "周视图",
+                label = strings.viewWeek(),
                 isSelected = currentMode == HistoryViewMode.WEEK,
                 onClick = { onModeChanged(HistoryViewMode.WEEK) },
                 modifier = Modifier.weight(1f),
             )
             SegmentItem(
-                label = "月视图",
+                label = strings.viewMonth(),
                 isSelected = currentMode == HistoryViewMode.MONTH,
                 onClick = { onModeChanged(HistoryViewMode.MONTH) },
                 modifier = Modifier.weight(1f),
@@ -163,7 +165,7 @@ private fun SegmentItem(
 // ==================== 周视图 ====================
 
 @Composable
-fun WeekView(uiState: CheckinnUiState, viewModel: CheckinnViewModel) {
+fun WeekView(uiState: CheckinnUiState, viewModel: CheckinnViewModel, strings: StringResources) {
     if (uiState.weekDates.isEmpty()) return
 
     val weekStart = uiState.weekDates.first()
@@ -195,10 +197,10 @@ fun WeekView(uiState: CheckinnUiState, viewModel: CheckinnViewModel) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            StatItem(label = "本周累计", value = CheckinnViewModel.formatDurationShort(totalWeekMs))
-            StatItem(label = "出勤天数", value = "${workDays}天")
+            StatItem(label = strings.todayTotal(), value = CheckinnViewModel.formatDurationShort(totalWeekMs))
+            StatItem(label = strings.workHours(workDays.toString()), value = "${workDays}")
             StatItem(
-                label = "日均",
+                label = strings.totalDuration(),
                 value = if (workDays > 0)
                     CheckinnViewModel.formatDurationShort(totalWeekMs / workDays)
                 else "0m"
@@ -219,6 +221,7 @@ fun WeekView(uiState: CheckinnUiState, viewModel: CheckinnViewModel) {
             record = record,
             isToday = isToday,
             isSelected = isSelected,
+            strings = strings,
             onClick = { viewModel.selectDay(date) },
         )
     }
@@ -230,6 +233,7 @@ fun WeekDayRow(
     record: DayRecord,
     isToday: Boolean,
     isSelected: Boolean,
+    strings: StringResources,
     onClick: () -> Unit,
 ) {
     val dayLabel = dayOfWeekShort(date)
@@ -291,7 +295,7 @@ fun WeekDayRow(
                 if (hasData) {
                     record.sessions.forEach { session ->
                         val clockIn = formatTime(session.clockInTime)
-                        val clockOut = session.clockOutTime?.let { formatTime(it) } ?: "进行中"
+                        val clockOut = session.clockOutTime?.let { formatTime(it) } ?: strings.inProgress()
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.padding(vertical = 1.dp),
@@ -314,7 +318,7 @@ fun WeekDayRow(
                     }
                 } else {
                     Text(
-                        text = "未打卡",
+                        text = strings.noRecord(),
                         fontSize = 12.sp,
                         color = AppColors.textMuted.copy(alpha = 0.5f),
                     )
@@ -338,7 +342,7 @@ fun WeekDayRow(
 // ==================== 月视图 ====================
 
 @Composable
-fun MonthView(uiState: CheckinnUiState, viewModel: CheckinnViewModel) {
+fun MonthView(uiState: CheckinnUiState, viewModel: CheckinnViewModel, strings: StringResources) {
     if (uiState.monthDates.isEmpty()) return
 
     val today = todayDateString()
@@ -368,10 +372,10 @@ fun MonthView(uiState: CheckinnUiState, viewModel: CheckinnViewModel) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            StatItem(label = "本月累计", value = CheckinnViewModel.formatDurationShort(totalMonthMs))
-            StatItem(label = "出勤天数", value = "${workDays}天")
+            StatItem(label = strings.todayTotal(), value = CheckinnViewModel.formatDurationShort(totalMonthMs))
+            StatItem(label = strings.workHours(workDays.toString()), value = "${workDays}")
             StatItem(
-                label = "日均",
+                label = strings.totalDuration(),
                 value = if (workDays > 0)
                     CheckinnViewModel.formatDurationShort(totalMonthMs / workDays)
                 else "0m"
@@ -575,13 +579,13 @@ fun StatItem(label: String, value: String) {
 }
 
 @Composable
-fun DayDetailCard(record: DayRecord) {
+fun DayDetailCard(record: DayRecord, strings: StringResources) {
     GlassCardColumn(
         modifier = Modifier.fillMaxWidth(),
         cornerRadius = 20.dp,
     ) {
         Text(
-            text = "${formatShortDate(record.date)} 打卡详情",
+            text = strings.dayDetails(formatShortDate(record.date)),
             fontSize = 15.sp,
             fontWeight = FontWeight.SemiBold,
             color = AppColors.textPrimary,
@@ -601,7 +605,7 @@ fun DayDetailCard(record: DayRecord) {
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "总时长 ${CheckinnViewModel.formatDuration(totalMs)}",
+                text = "${strings.totalDuration()} ${CheckinnViewModel.formatDuration(totalMs)}",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = JetBrainsMonoFamily,
@@ -613,10 +617,10 @@ fun DayDetailCard(record: DayRecord) {
 
         record.sessions.forEachIndexed { index, session ->
             val clockIn = formatTime(session.clockInTime)
-            val clockOut = session.clockOutTime?.let { formatTime(it) } ?: "进行中"
+            val clockOut = session.clockOutTime?.let { formatTime(it) } ?: strings.inProgress()
             val dur = if (session.clockOutTime != null) {
                 CheckinnViewModel.formatDuration(session.durationMs)
-            } else "进行中"
+            } else strings.inProgress()
 
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),

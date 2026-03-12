@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Checkinn</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="nav_clock">Fichaje</string>
+    <string name="nav_history">Historial</string>
+    
+    <!-- Status -->
+    <string name="status_working">Trabajando</string>
+    <string name="status_idle">Fuera de servicio</string>
+    <string name="today_total">Total de hoy</string>
+    <string name="today_goal">Objetivo de hoy 10h</string>
+    <string name="remain_hours">Quedan %s</string>
+    <string name="completed">Completado ✓</string>
+    
+    <!-- Sessions -->
+    <string name="today_sessions">Sesiones de trabajo de hoy</string>
+    <string name="expand_all">Expandir todo</string>
+    <string name="collapse">Contraer</string>
+    <string name="in_progress">En progreso</string>
+    
+    <!-- Manual Check -->
+    <string name="manual_check">Fichaje manual</string>
+    <string name="clock_in">Fichar entrada</string>
+    <string name="clock_out">Fichar salida</string>
+    
+    <!-- NFC -->
+    <string name="nfc_setup">Configuración pegatina NFC</string>
+    <string name="nfc_description">Escribir escena de fichaje en pegatina NFC en blanco</string>
+    <string name="write_clock_in">Escribir tarjeta「Entrada」</string>
+    <string name="write_clock_out">Escribir tarjeta「Salida」</string>
+    <string name="nfc_write_dialog_title">Escribir pegatina NFC</string>
+    <string name="nfc_write_instruction">Por favor, coloque una pegatina NFC en blanco cerca de la parte posterior de su teléfono</string>
+    <string name="nfc_write_scene">A punto de escribir: 「%s」</string>
+    <string name="cancel">Cancelar</string>
+    
+    <!-- Toast Messages -->
+    <string name="toast_already_working">¡Ya has fichado la entrada!</string>
+    <string name="toast_clock_in_success">¡Fichaje de entrada exitoso! Cronómetro iniciado ⏱</string>
+    <string name="toast_no_clock_in">No hay registro de fichaje de entrada. ¡Por favor, fiche primero la entrada!</string>
+    <string name="toast_clock_out_success">¡Fichaje de salida exitoso! Tiempo total de trabajo hoy: %s</string>
+    <string name="toast_nfc_write_success">¡Pegatina NFC escrita con éxito!</string>
+    <string name="toast_nfc_write_failed">Error de escritura, por favor inténtelo de nuevo</string>
+    
+    <!-- Animation -->
+    <string name="anim_clock_in_success">¡Fichaje de entrada exitoso!</string>
+    <string name="anim_clock_out_success">¡Fichaje de salida exitoso!</string>
+    
+    <!-- History -->
+    <string name="view_week">Vista semanal</string>
+    <string name="view_month">Vista mensual</string>
+    <string name="week_format">Semana %s</string>
+    <string name="month_format">%s</string>
+    <string name="day_details">Registros de %s</string>
+    <string name="total_duration">Duración total</string>
+    <string name="no_record">Sin registros</string>
+    <string name="work_hours">%s horas</string>
+    
+    <!-- Day of Week -->
+    <string name="monday_short">Lun</string>
+    <string name="tuesday_short">Mar</string>
+    <string name="wednesday_short">Mié</string>
+    <string name="thursday_short">Jue</string>
+    <string name="friday_short">Vie</string>
+    <string name="saturday_short">Sáb</string>
+    <string name="sunday_short">Dom</string>
+    
+    <string name="monday">Lunes</string>
+    <string name="tuesday">Martes</string>
+    <string name="wednesday">Miércoles</string>
+    <string name="thursday">Jueves</string>
+    <string name="friday">Viernes</string>
+    <string name="saturday">Sábado</string>
+    <string name="sunday">Domingo</string>
+    
+    <!-- Settings -->
+    <string name="settings">Configuración</string>
+    <string name="language">Idioma</string>
+    <string name="select_language">Seleccionar idioma</string>
+</resources>

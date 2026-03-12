@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Checkinn</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="nav_clock">출퇴근</string>
+    <string name="nav_history">기록</string>
+    
+    <!-- Status -->
+    <string name="status_working">근무 중</string>
+    <string name="status_idle">미출근</string>
+    <string name="today_total">오늘 누적</string>
+    <string name="today_goal">오늘 목표 10h</string>
+    <string name="remain_hours">남은 시간 %s</string>
+    <string name="completed">완료 ✓</string>
+    
+    <!-- Sessions -->
+    <string name="today_sessions">오늘 근무 시간</string>
+    <string name="expand_all">전체 펼치기</string>
+    <string name="collapse">접기</string>
+    <string name="in_progress">진행 중</string>
+    
+    <!-- Manual Check -->
+    <string name="manual_check">수동 출퇴근</string>
+    <string name="clock_in">출근 체크</string>
+    <string name="clock_out">퇴근 체크</string>
+    
+    <!-- NFC -->
+    <string name="nfc_setup">NFC 스티커 설정</string>
+    <string name="nfc_description">빈 NFC 스티커에 출퇴근 정보 쓰기</string>
+    <string name="write_clock_in">「출근」카드 쓰기</string>
+    <string name="write_clock_out">「퇴근」카드 쓰기</string>
+    <string name="nfc_write_dialog_title">NFC 스티커에 쓰기</string>
+    <string name="nfc_write_instruction">빈 NFC 스티커를 휴대폰 뒷면에 가까이 대주세요</string>
+    <string name="nfc_write_scene">쓰기 예정: 「%s」</string>
+    <string name="cancel">취소</string>
+    
+    <!-- Toast Messages -->
+    <string name="toast_already_working">이미 출근 상태입니다!</string>
+    <string name="toast_clock_in_success">출근 체크 성공! 타이머 시작 ⏱</string>
+    <string name="toast_no_clock_in">출근 기록이 없습니다. 먼저 출근 체크하세요!</string>
+    <string name="toast_clock_out_success">퇴근 체크 성공! 오늘 총 근무 시간 %s</string>
+    <string name="toast_nfc_write_success">NFC 스티커 쓰기 성공!</string>
+    <string name="toast_nfc_write_failed">쓰기 실패, 다시 시도하세요</string>
+    
+    <!-- Animation -->
+    <string name="anim_clock_in_success">출근 체크 성공!</string>
+    <string name="anim_clock_out_success">퇴근 체크 성공!</string>
+    
+    <!-- History -->
+    <string name="view_week">주 보기</string>
+    <string name="view_month">월 보기</string>
+    <string name="week_format">%s주</string>
+    <string name="month_format">%s월</string>
+    <string name="day_details">%s 기록</string>
+    <string name="total_duration">총 시간</string>
+    <string name="no_record">기록 없음</string>
+    <string name="work_hours">%s 근무 시간</string>
+    
+    <!-- Day of Week -->
+    <string name="monday_short">월</string>
+    <string name="tuesday_short">화</string>
+    <string name="wednesday_short">수</string>
+    <string name="thursday_short">목</string>
+    <string name="friday_short">금</string>
+    <string name="saturday_short">토</string>
+    <string name="sunday_short">일</string>
+    
+    <string name="monday">월요일</string>
+    <string name="tuesday">화요일</string>
+    <string name="wednesday">수요일</string>
+    <string name="thursday">목요일</string>
+    <string name="friday">금요일</string>
+    <string name="saturday">토요일</string>
+    <string name="sunday">일요일</string>
+    
+    <!-- Settings -->
+    <string name="settings">설정</string>
+    <string name="language">언어</string>
+    <string name="select_language">언어 선택</string>
+</resources>

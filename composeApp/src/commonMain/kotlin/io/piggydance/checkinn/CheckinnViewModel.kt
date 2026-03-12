@@ -42,6 +42,9 @@ class CheckinnViewModel : ViewModel() {
 
     // 平台相关的存储层, 由 Android 侧注入
     var storage: CheckinnStorageInterface? = null
+    
+    // 字符串资源 - 公开访问，供 UI 层使用
+    val strings: StringResources by lazy { getStringResources() }
 
     fun initialize(storage: CheckinnStorageInterface) {
         this.storage = storage
@@ -71,7 +74,7 @@ class CheckinnViewModel : ViewModel() {
             // 已经打过上班卡且还没下班
             _uiState.update {
                 it.copy(
-                    toastMessage = "你已经在上班中了哦！",
+                    toastMessage = strings.toastAlreadyWorking(),
                     todayRecord = record,
                 )
             }
@@ -89,7 +92,7 @@ class CheckinnViewModel : ViewModel() {
                 showAnimation = true,
                 animationType = AnimationType.CLOCK_IN,
                 currentTimeMs = now,
-                toastMessage = "上班打卡成功！开始计时 ⏱",
+                toastMessage = strings.toastClockInSuccess(),
             )
         }
     }
@@ -102,7 +105,7 @@ class CheckinnViewModel : ViewModel() {
         if (!record.hasActiveSession) {
             _uiState.update {
                 it.copy(
-                    toastMessage = "还没有上班打卡记录，请先上班打卡！",
+                    toastMessage = strings.toastNoClockIn(),
                     todayRecord = record,
                 )
             }
@@ -126,7 +129,7 @@ class CheckinnViewModel : ViewModel() {
                 showAnimation = true,
                 animationType = AnimationType.CLOCK_OUT,
                 currentTimeMs = now,
-                toastMessage = "下班打卡成功！今日累计工作 ${formatDurationChinese(updatedRecord.totalDurationMs)}",
+                toastMessage = strings.toastClockOutSuccess(formatDurationChinese(updatedRecord.totalDurationMs)),
             )
         }
     }
@@ -155,7 +158,7 @@ class CheckinnViewModel : ViewModel() {
             it.copy(
                 writeSuccess = success,
                 isWriteMode = !success, // 成功就退出写入模式
-                toastMessage = if (success) "NFC 贴纸写入成功！" else "写入失败，请重试",
+                toastMessage = if (success) strings.toastNfcWriteSuccess() else strings.toastNfcWriteFailed(),
             )
         }
     }

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Checkinn</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="nav_clock">打刻</string>
+    <string name="nav_history">記録</string>
+    
+    <!-- Status -->
+    <string name="status_working">勤務中</string>
+    <string name="status_idle">未出勤</string>
+    <string name="today_total">本日の累計</string>
+    <string name="today_goal">本日の目標 10h</string>
+    <string name="remain_hours">残り %s</string>
+    <string name="completed">完了 ✓</string>
+    
+    <!-- Sessions -->
+    <string name="today_sessions">本日の勤務時間</string>
+    <string name="expand_all">すべて展開</string>
+    <string name="collapse">折りたたむ</string>
+    <string name="in_progress">勤務中</string>
+    
+    <!-- Manual Check -->
+    <string name="manual_check">手動打刻</string>
+    <string name="clock_in">出勤打刻</string>
+    <string name="clock_out">退勤打刻</string>
+    
+    <!-- NFC -->
+    <string name="nfc_setup">NFCステッカー設定</string>
+    <string name="nfc_description">空白のNFCステッカーに打刻シーンを書き込む</string>
+    <string name="write_clock_in">「出勤」カードを書き込む</string>
+    <string name="write_clock_out">「退勤」カードを書き込む</string>
+    <string name="nfc_write_dialog_title">NFCステッカーに書き込む</string>
+    <string name="nfc_write_instruction">空白のNFCステッカーをスマートフォンの背面に近づけてください</string>
+    <string name="nfc_write_scene">書き込み予定: 「%s」</string>
+    <string name="cancel">キャンセル</string>
+    
+    <!-- Toast Messages -->
+    <string name="toast_already_working">すでに出勤しています！</string>
+    <string name="toast_clock_in_success">出勤打刻成功！タイマー開始 ⏱</string>
+    <string name="toast_no_clock_in">出勤打刻記録がありません。まず出勤打刻してください！</string>
+    <string name="toast_clock_out_success">退勤打刻成功！本日の累計勤務時間 %s</string>
+    <string name="toast_nfc_write_success">NFCステッカーへの書き込み成功！</string>
+    <string name="toast_nfc_write_failed">書き込み失敗、再試行してください</string>
+    
+    <!-- Animation -->
+    <string name="anim_clock_in_success">出勤打刻成功!</string>
+    <string name="anim_clock_out_success">退勤打刻成功!</string>
+    
+    <!-- History -->
+    <string name="view_week">週表示</string>
+    <string name="view_month">月表示</string>
+    <string name="week_format">%s週</string>
+    <string name="month_format">%s月</string>
+    <string name="day_details">%s の記録</string>
+    <string name="total_duration">総時間</string>
+    <string name="no_record">記録なし</string>
+    <string name="work_hours">%s 労働時間</string>
+    
+    <!-- Day of Week -->
+    <string name="monday_short">月</string>
+    <string name="tuesday_short">火</string>
+    <string name="wednesday_short">水</string>
+    <string name="thursday_short">木</string>
+    <string name="friday_short">金</string>
+    <string name="saturday_short">土</string>
+    <string name="sunday_short">日</string>
+    
+    <string name="monday">月曜日</string>
+    <string name="tuesday">火曜日</string>
+    <string name="wednesday">水曜日</string>
+    <string name="thursday">木曜日</string>
+    <string name="friday">金曜日</string>
+    <string name="saturday">土曜日</string>
+    <string name="sunday">日曜日</string>
+    
+    <!-- Settings -->
+    <string name="settings">設定</string>
+    <string name="language">言語</string>
+    <string name="select_language">言語を選択</string>
+</resources>

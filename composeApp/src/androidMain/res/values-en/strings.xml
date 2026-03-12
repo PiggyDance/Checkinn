@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Checkinn</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="nav_clock">Clock</string>
+    <string name="nav_history">History</string>
+    
+    <!-- Status -->
+    <string name="status_working">Working</string>
+    <string name="status_idle">Off Work</string>
+    <string name="today_total">Today\'s Total</string>
+    <string name="today_goal">Today\'s Goal 10h</string>
+    <string name="remain_hours">Remaining %s</string>
+    <string name="completed">Completed ✓</string>
+    
+    <!-- Sessions -->
+    <string name="today_sessions">Today\'s Work Sessions</string>
+    <string name="expand_all">Expand All</string>
+    <string name="collapse">Collapse</string>
+    <string name="in_progress">In Progress</string>
+    
+    <!-- Manual Check -->
+    <string name="manual_check">Manual Check</string>
+    <string name="clock_in">Clock In</string>
+    <string name="clock_out">Clock Out</string>
+    
+    <!-- NFC -->
+    <string name="nfc_setup">NFC Sticker Setup</string>
+    <string name="nfc_description">Write check scene to blank NFC sticker</string>
+    <string name="write_clock_in">Write \"Clock In\" Card</string>
+    <string name="write_clock_out">Write \"Clock Out\" Card</string>
+    <string name="nfc_write_dialog_title">Write NFC Sticker</string>
+    <string name="nfc_write_instruction">Place blank NFC sticker near the back of your phone</string>
+    <string name="nfc_write_scene">About to write: \"%s\"</string>
+    <string name="cancel">Cancel</string>
+    
+    <!-- Toast Messages -->
+    <string name="toast_already_working">You\'re already clocked in!</string>
+    <string name="toast_clock_in_success">Clock in successful! Timer started ⏱</string>
+    <string name="toast_no_clock_in">No clock in record. Please clock in first!</string>
+    <string name="toast_clock_out_success">Clock out successful! Total work today: %s</string>
+    <string name="toast_nfc_write_success">NFC sticker written successfully!</string>
+    <string name="toast_nfc_write_failed">Write failed, please try again</string>
+    
+    <!-- Animation -->
+    <string name="anim_clock_in_success">Clock In Successful!</string>
+    <string name="anim_clock_out_success">Clock Out Successful!</string>
+    
+    <!-- History -->
+    <string name="view_week">Week View</string>
+    <string name="view_month">Month View</string>
+    <string name="week_format">Week %s</string>
+    <string name="month_format">%s</string>
+    <string name="day_details">%s Records</string>
+    <string name="total_duration">Total Duration</string>
+    <string name="no_record">No Records</string>
+    <string name="work_hours">%s hours</string>
+    
+    <!-- Day of Week -->
+    <string name="monday_short">Mon</string>
+    <string name="tuesday_short">Tue</string>
+    <string name="wednesday_short">Wed</string>
+    <string name="thursday_short">Thu</string>
+    <string name="friday_short">Fri</string>
+    <string name="saturday_short">Sat</string>
+    <string name="sunday_short">Sun</string>
+    
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
+    
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="language">Language</string>
+    <string name="select_language">Select Language</string>
+</resources>

@@ -21,6 +21,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
+        // 初始化应用上下文用于字符串资源
+        initializeContext(this)
+        
         nfcHelper = NfcHelper(this)
         storage = CheckinnStorage(this)
         viewModel = ViewModelProvider(this)[CheckinnViewModel::class.java]

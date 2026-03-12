@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Checkinn</string>
+    
+    <!-- Bottom Navigation -->
+    <string name="nav_clock">Pointage</string>
+    <string name="nav_history">Historique</string>
+    
+    <!-- Status -->
+    <string name="status_working">En travail</string>
+    <string name="status_idle">Hors service</string>
+    <string name="today_total">Total d\'aujourd\'hui</string>
+    <string name="today_goal">Objectif du jour 10h</string>
+    <string name="remain_hours">Reste %s</string>
+    <string name="completed">Terminé ✓</string>
+    
+    <!-- Sessions -->
+    <string name="today_sessions">Séances de travail d\'aujourd\'hui</string>
+    <string name="expand_all">Développer tout</string>
+    <string name="collapse">Réduire</string>
+    <string name="in_progress">En cours</string>
+    
+    <!-- Manual Check -->
+    <string name="manual_check">Pointage manuel</string>
+    <string name="clock_in">Pointer l\'entrée</string>
+    <string name="clock_out">Pointer la sortie</string>
+    
+    <!-- NFC -->
+    <string name="nfc_setup">Configuration autocollant NFC</string>
+    <string name="nfc_description">Écrire le scénario de pointage sur un autocollant NFC vierge</string>
+    <string name="write_clock_in">Écrire carte「Entrée」</string>
+    <string name="write_clock_out">Écrire carte「Sortie」</string>
+    <string name="nfc_write_dialog_title">Écrire l\'autocollant NFC</string>
+    <string name="nfc_write_instruction">Veuillez placer un autocollant NFC vierge près de l\'arrière de votre téléphone</string>
+    <string name="nfc_write_scene">Sur le point d\'écrire: 「%s」</string>
+    <string name="cancel">Annuler</string>
+    
+    <!-- Toast Messages -->
+    <string name="toast_already_working">Vous avez déjà pointé!</string>
+    <string name="toast_clock_in_success">Pointage d\'entrée réussi! Chronomètre démarré ⏱</string>
+    <string name="toast_no_clock_in">Aucun enregistrement de pointage d\'entrée. Veuillez d\'abord pointer l\'entrée!</string>
+    <string name="toast_clock_out_success">Pointage de sortie réussi! Temps de travail total aujourd\'hui: %s</string>
+    <string name="toast_nfc_write_success">Autocollant NFC écrit avec succès!</string>
+    <string name="toast_nfc_write_failed">Échec de l\'écriture, veuillez réessayer</string>
+    
+    <!-- Animation -->
+    <string name="anim_clock_in_success">Pointage d\'entrée réussi!</string>
+    <string name="anim_clock_out_success">Pointage de sortie réussi!</string>
+    
+    <!-- History -->
+    <string name="view_week">Vue hebdomadaire</string>
+    <string name="view_month">Vue mensuelle</string>
+    <string name="week_format">Semaine %s</string>
+    <string name="month_format">%s</string>
+    <string name="day_details">Enregistrements %s</string>
+    <string name="total_duration">Durée totale</string>
+    <string name="no_record">Aucun enregistrement</string>
+    <string name="work_hours">%s heures</string>
+    
+    <!-- Day of Week -->
+    <string name="monday_short">Lun</string>
+    <string name="tuesday_short">Mar</string>
+    <string name="wednesday_short">Mer</string>
+    <string name="thursday_short">Jeu</string>
+    <string name="friday_short">Ven</string>
+    <string name="saturday_short">Sam</string>
+    <string name="sunday_short">Dim</string>
+    
+    <string name="monday">Lundi</string>
+    <string name="tuesday">Mardi</string>
+    <string name="wednesday">Mercredi</string>
+    <string name="thursday">Jeudi</string>
+    <string name="friday">Vendredi</string>
+    <string name="saturday">Samedi</string>
+    <string name="sunday">Dimanche</string>
+    
+    <!-- Settings -->
+    <string name="settings">Paramètres</string>
+    <string name="language">Langue</string>
+    <string name="select_language">Sélectionner la langue</string>
+</resources>
