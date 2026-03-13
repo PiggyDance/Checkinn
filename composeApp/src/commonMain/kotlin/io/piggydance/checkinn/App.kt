@@ -103,7 +103,7 @@ fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
         Box(modifier = Modifier.fillMaxSize()) {
             // 全屏渐变背景
             AppBackground {
-                // 主内容区域（全屏，应用模糊效果，底部导航会覆盖在上面）
+                // 主内容区域（全屏，应用模糊效果）
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -113,16 +113,16 @@ fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
                         AppTab.HOME -> HomeScreen(viewModel = viewModel, uiState = uiState)
                         AppTab.HISTORY -> HistoryScreen(viewModel = viewModel)
                     }
+                    
+                    // 底部导航栏也在这里，这样设置对话框可以模糊所有内容
+                    GlassBottomNav(
+                        currentTab = currentTab,
+                        onTabSelected = { currentTab = it },
+                        hazeState = hazeState,
+                        strings = strings,
+                        modifier = Modifier.align(Alignment.BottomCenter),
+                    )
                 }
-
-                // 高斯模糊毛玻璃底部导航（悬浮在底部）
-                GlassBottomNav(
-                    currentTab = currentTab,
-                    onTabSelected = { currentTab = it },
-                    hazeState = hazeState,
-                    strings = strings,
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                )
 
                 // Snackbar
                 SnackbarHost(
@@ -163,15 +163,22 @@ fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
                 )
             }
             
-            // 工作设置对话框
-            if (uiState.showSettingsDialog) {
-                WorkSettingsDialog(
-                    settings = uiState.settings,
-                    strings = strings,
-                    onDismiss = { viewModel.hideSettingsDialog() },
-                    onConfirm = { viewModel.updateSettings(it) }
-                )
-            }
+        }
+        
+        // 工作设置对话框 - 覆盖层（在主内容区域外层，这样可以模糊背后内容）
+        AnimatedVisibility(
+            visible = uiState.showSettingsDialog,
+            enter = fadeIn(animationSpec = tween(300)),
+            exit = fadeOut(animationSpec = tween(300)),
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            WorkSettingsDialog(
+                settings = uiState.settings,
+                strings = strings,
+                hazeState = hazeState,
+                onDismiss = { viewModel.hideSettingsDialog() },
+                onConfirm = { viewModel.updateSettings(it) }
+            )
         }
     }
 }

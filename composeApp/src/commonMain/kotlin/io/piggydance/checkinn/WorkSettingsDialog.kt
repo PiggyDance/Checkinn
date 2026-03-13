@@ -1,9 +1,13 @@
 package io.piggydance.checkinn
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import kotlin.math.roundToInt
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,16 +15,18 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -41,35 +47,81 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.haze
+import dev.chrisbanes.haze.hazeChild
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun WorkSettingsDialog(
     settings: CheckinnSettings,
     strings: StringResources,
+    hazeState: HazeState,
     onDismiss: () -> Unit,
     onConfirm: (CheckinnSettings) -> Unit,
 ) {
     var dailyGoalHours by remember { mutableStateOf(settings.dailyGoalHours) }
     var selectedWorkDays by remember { mutableStateOf(settings.workDays) }
+    val shape = RoundedCornerShape(24.dp)
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = AppColors.bgMid,
-        shape = RoundedCornerShape(24.dp),
-        title = {
+    // 全屏半透明遮罩（点击关闭对话框）
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.3f))
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+            ) { onDismiss() },
+        contentAlignment = Alignment.Center,
+    ) {
+        // 毛玻璃卡片 - 使用从 App 层传入的 hazeState 模糊背后内容
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .clip(shape)
+                .hazeChild(state = hazeState) {
+                    backgroundColor = AppColors.bgTop.copy(alpha = 0.98f)
+                    blurRadius = 28.dp
+                    noiseFactor = 0.25f
+                }
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            AppColors.bgTop.copy(alpha = 0.6f),
+                            AppColors.bgBottom.copy(alpha = 0.7f),
+                        )
+                    )
+                )
+                .border(
+                    width = 1.dp,
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = 0.15f),
+                            Color.White.copy(alpha = 0.05f),
+                        )
+                    ),
+                    shape = shape,
+                )
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                ) { /* 阻止点击穿透 */ }
+                .padding(24.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // 标题
             Text(
                 strings.workSettings(),
                 color = AppColors.textPrimary,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 20.sp,
-            )
-        },
-        text = {
-            Column(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
+            )
+            
+            Spacer(modifier = Modifier.height(20.dp))
+                
                 // 每日目标时长
                 Text(
                     text = strings.dailyGoalHours(),
@@ -166,40 +218,49 @@ fun WorkSettingsDialog(
                         )
                     }
                 }
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                // 按钮行
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    // 取消按钮
+                    Button(
+                        onClick = onDismiss,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.White.copy(alpha = 0.08f),
+                            contentColor = AppColors.textSecondary,
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(strings.cancel())
+                    }
+                    
+                    // 确认按钮
+                    Button(
+                        onClick = {
+                            onConfirm(
+                                CheckinnSettings(
+                                    dailyGoalHours = dailyGoalHours,
+                                    workDays = selectedWorkDays
+                                )
+                            )
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = AppColors.primary,
+                            contentColor = Color.White,
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(strings.confirm())
+                    }
             }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    onConfirm(
-                        CheckinnSettings(
-                            dailyGoalHours = dailyGoalHours,
-                            workDays = selectedWorkDays
-                        )
-                    )
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = AppColors.primary,
-                    contentColor = Color.White,
-                ),
-                shape = RoundedCornerShape(12.dp),
-            ) {
-                Text(strings.confirm())
-            }
-        },
-        dismissButton = {
-            Button(
-                onClick = onDismiss,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White.copy(alpha = 0.08f),
-                    contentColor = AppColors.textSecondary,
-                ),
-                shape = RoundedCornerShape(12.dp),
-            ) {
-                Text(strings.cancel())
-            }
-        },
-    )
+        }
+    }
 }
 
 @Composable
