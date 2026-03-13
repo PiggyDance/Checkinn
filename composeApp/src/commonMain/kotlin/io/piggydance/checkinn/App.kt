@@ -162,6 +162,16 @@ fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
                     onDismiss = { viewModel.exitWriteMode() },
                 )
             }
+            
+            // 工作设置对话框
+            if (uiState.showSettingsDialog) {
+                WorkSettingsDialog(
+                    settings = uiState.settings,
+                    strings = strings,
+                    onDismiss = { viewModel.hideSettingsDialog() },
+                    onConfirm = { viewModel.updateSettings(it) }
+                )
+            }
         }
     }
 }
@@ -313,7 +323,11 @@ fun HomeScreen(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        StatusCard(uiState = uiState, strings = strings)
+        StatusCard(
+            uiState = uiState,
+            strings = strings,
+            onGoalClick = { viewModel.showSettingsDialog() }
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -335,7 +349,7 @@ fun HomeScreen(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
 // ==================== 状态卡 ====================
 
 @Composable
-fun StatusCard(uiState: CheckinnUiState, strings: StringResources) {
+fun StatusCard(uiState: CheckinnUiState, strings: StringResources, onGoalClick: () -> Unit) {
     val isWorking = uiState.todayRecord.hasActiveSession
 
     // 工作中 = 绿色渐变毛玻璃, 未工作 = 普通毛玻璃
@@ -378,10 +392,12 @@ fun StatusCard(uiState: CheckinnUiState, strings: StringResources) {
         uiState.todayRecord.totalDurationMs
     }
 
-    // 10小时目标（毫秒）
-    val targetMs = 10L * 60 * 60 * 1000
+    // 工作目标（毫秒）
+    val targetMs = uiState.settings.dailyGoalHours * 60L * 60 * 1000
     val remainingMs = targetMs - totalDuration
-    val progress = (totalDuration.toFloat() / targetMs).coerceIn(0f, 1f)
+    val progress = if (targetMs > 0) {
+        (totalDuration.toFloat() / targetMs).coerceIn(0f, 1f)
+    } else 0f
 
     Box(
         modifier = Modifier
@@ -442,13 +458,17 @@ fun StatusCard(uiState: CheckinnUiState, strings: StringResources) {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // 右侧：目标进度（仅未上班时显示）
-            if (!isWorking && totalDuration > 0) {
+            // 右侧：目标进度（始终显示，支持点击）
+            if (targetMs > 0) {
                 Column(
                     horizontalAlignment = Alignment.End,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable { onGoalClick() }
+                        .padding(8.dp)
                 ) {
                     Text(
-                        text = strings.todayGoal(),
+                        text = strings.todayGoalHours(uiState.settings.dailyGoalHours),
                         fontSize = 11.sp,
                         color = AppColors.textMuted,
                         letterSpacing = 0.5.sp,

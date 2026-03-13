@@ -81,6 +81,12 @@ class AndroidStringResources(private val context: Context) : StringResources {
     override fun settings() = context.getString(R.string.settings)
     override fun language() = context.getString(R.string.language)
     override fun selectLanguage() = context.getString(R.string.select_language)
+    override fun workSettings() = context.getString(R.string.work_settings)
+    override fun dailyGoalHours() = context.getString(R.string.daily_goal_hours)
+    override fun workDaysSetting() = context.getString(R.string.work_days_setting)
+    override fun hoursFormat(hours: Int) = context.getString(R.string.hours_format, hours)
+    override fun confirm() = context.getString(R.string.confirm)
+    override fun todayGoalHours(hours: Int) = context.getString(R.string.today_goal_hours, hours)
 }
 
 actual fun getStringResources(): StringResources {

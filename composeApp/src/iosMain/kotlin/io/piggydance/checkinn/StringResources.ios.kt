@@ -73,6 +73,12 @@ class IosStringResources : StringResources {
     override fun settings() = "Settings"
     override fun language() = "Language"
     override fun selectLanguage() = "Select Language"
+    override fun workSettings() = "Work Settings"
+    override fun dailyGoalHours() = "Daily Goal Hours"
+    override fun workDaysSetting() = "Work Days"
+    override fun hoursFormat(hours: Int) = "$hours hours"
+    override fun confirm() = "Confirm"
+    override fun todayGoalHours(hours: Int) = "Today's Goal ${hours}h"
 }
 
 actual fun getStringResources(): StringResources {

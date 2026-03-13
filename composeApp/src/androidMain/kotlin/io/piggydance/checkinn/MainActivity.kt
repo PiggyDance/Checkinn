@@ -16,6 +16,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var nfcHelper: NfcHelper
     private lateinit var viewModel: CheckinnViewModel
     private lateinit var storage: CheckinnStorage
+    private lateinit var settingsStorage: AndroidCheckinnSettingsStorage
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -26,8 +27,9 @@ class MainActivity : ComponentActivity() {
         
         nfcHelper = NfcHelper(this)
         storage = CheckinnStorage(this)
+        settingsStorage = AndroidCheckinnSettingsStorage(this)
         viewModel = ViewModelProvider(this)[CheckinnViewModel::class.java]
-        viewModel.initialize(storage)
+        viewModel.initialize(storage, settingsStorage)
 
         setContent {
             App(viewModel = viewModel)

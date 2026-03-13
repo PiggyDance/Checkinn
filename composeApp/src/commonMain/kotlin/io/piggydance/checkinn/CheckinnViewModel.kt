@@ -16,6 +16,9 @@ data class CheckinnUiState(
     val isWriteMode: Boolean = false,
     val writeScene: NfcScene? = null,
     val writeSuccess: Boolean = false,
+    // 设置
+    val settings: CheckinnSettings = CheckinnSettings(),
+    val showSettingsDialog: Boolean = false,
     // 历史视图
     val historyViewMode: HistoryViewMode = HistoryViewMode.WEEK,
     val weekAnchorDate: String = "",       // 当前周视图的锚点日期
@@ -42,13 +45,21 @@ class CheckinnViewModel : ViewModel() {
 
     // 平台相关的存储层, 由 Android 侧注入
     var storage: CheckinnStorageInterface? = null
+    var settingsStorage: CheckinnSettingsStorage? = null
     
     // 字符串资源 - 公开访问，供 UI 层使用
     val strings: StringResources by lazy { getStringResources() }
 
-    fun initialize(storage: CheckinnStorageInterface) {
+    fun initialize(storage: CheckinnStorageInterface, settingsStorage: CheckinnSettingsStorage) {
         this.storage = storage
+        this.settingsStorage = settingsStorage
+        loadSettings()
         loadTodayRecord()
+    }
+    
+    private fun loadSettings() {
+        val settings = settingsStorage?.loadSettings() ?: CheckinnSettings()
+        _uiState.update { it.copy(settings = settings) }
     }
 
     private fun loadTodayRecord() {
@@ -215,6 +226,21 @@ class CheckinnViewModel : ViewModel() {
 
     fun clearSelectedDay() {
         _uiState.update { it.copy(selectedDayRecord = null) }
+    }
+    
+    // ========== 设置相关 ==========
+    
+    fun showSettingsDialog() {
+        _uiState.update { it.copy(showSettingsDialog = true) }
+    }
+    
+    fun hideSettingsDialog() {
+        _uiState.update { it.copy(showSettingsDialog = false) }
+    }
+    
+    fun updateSettings(settings: CheckinnSettings) {
+        settingsStorage?.saveSettings(settings)
+        _uiState.update { it.copy(settings = settings, showSettingsDialog = false) }
     }
 
     private fun loadWeekData(anchorDate: String) {

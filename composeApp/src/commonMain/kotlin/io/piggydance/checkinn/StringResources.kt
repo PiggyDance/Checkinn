@@ -83,6 +83,12 @@ interface StringResources {
     fun settings(): String
     fun language(): String
     fun selectLanguage(): String
+    fun workSettings(): String
+    fun dailyGoalHours(): String
+    fun workDaysSetting(): String
+    fun hoursFormat(hours: Int): String
+    fun confirm(): String
+    fun todayGoalHours(hours: Int): String
 }
 
 /**

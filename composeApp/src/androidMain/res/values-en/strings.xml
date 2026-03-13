@@ -78,4 +78,10 @@
     <string name="settings">Settings</string>
     <string name="language">Language</string>
     <string name="select_language">Select Language</string>
+    <string name="work_settings">Work Settings</string>
+    <string name="daily_goal_hours">Daily Goal Hours</string>
+    <string name="work_days_setting">Work Days</string>
+    <string name="hours_format">%d hours</string>
+    <string name="confirm">Confirm</string>
+    <string name="today_goal_hours">Today\'s Goal %dh</string>
 </resources>

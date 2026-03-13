@@ -78,4 +78,10 @@
     <string name="settings">设置</string>
     <string name="language">语言</string>
     <string name="select_language">选择语言</string>
+    <string name="work_settings">工作设置</string>
+    <string name="daily_goal_hours">每日目标时长</string>
+    <string name="work_days_setting">工作日设置</string>
+    <string name="hours_format">%d 小时</string>
+    <string name="confirm">确定</string>
+    <string name="today_goal_hours">今日目标 %dh</string>
 </resources>
