@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 fun HistoryScreen(viewModel: CheckinnViewModel) {
     val uiState by viewModel.uiState.collectAsState()
     val strings = remember { getStringResources() }
+    val targetMs = uiState.settings.dailyGoalHours * 60L * 60 * 1000
 
     LaunchedEffect(Unit) {
         viewModel.initHistory()
@@ -75,15 +76,15 @@ fun HistoryScreen(viewModel: CheckinnViewModel) {
         Spacer(modifier = Modifier.height(20.dp))
 
         when (uiState.historyViewMode) {
-            HistoryViewMode.WEEK -> WeekView(uiState = uiState, viewModel = viewModel, strings = strings)
-            HistoryViewMode.MONTH -> MonthView(uiState = uiState, viewModel = viewModel, strings = strings)
+            HistoryViewMode.WEEK -> WeekView(uiState = uiState, viewModel = viewModel, strings = strings, targetMs = targetMs)
+            HistoryViewMode.MONTH -> MonthView(uiState = uiState, viewModel = viewModel, strings = strings, targetMs = targetMs)
         }
 
         // 选中日的详情
         uiState.selectedDayRecord?.let { record ->
             if (record.sessions.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(16.dp))
-                DayDetailCard(record = record, strings = strings)
+                DayDetailCard(record = record, strings = strings, targetMs = targetMs)
             }
         }
 
@@ -165,7 +166,7 @@ private fun SegmentItem(
 // ==================== 周视图 ====================
 
 @Composable
-fun WeekView(uiState: CheckinnUiState, viewModel: CheckinnViewModel, strings: StringResources) {
+fun WeekView(uiState: CheckinnUiState, viewModel: CheckinnViewModel, strings: StringResources, targetMs: Long) {
     if (uiState.weekDates.isEmpty()) return
 
     val weekStart = uiState.weekDates.first()
@@ -222,6 +223,7 @@ fun WeekView(uiState: CheckinnUiState, viewModel: CheckinnViewModel, strings: St
             isToday = isToday,
             isSelected = isSelected,
             strings = strings,
+            targetMs = targetMs,
             onClick = { viewModel.selectDay(date) },
         )
     }
@@ -234,12 +236,14 @@ fun WeekDayRow(
     isToday: Boolean,
     isSelected: Boolean,
     strings: StringResources,
+    targetMs: Long,
     onClick: () -> Unit,
 ) {
     val dayLabel = dayOfWeekShort(date)
     val dayNum = dayOfMonth(date)
     val totalMs = record.sessions.filter { it.clockOutTime != null }.sumOf { it.durationMs }
     val hasData = record.sessions.isNotEmpty()
+    val reachedGoal = totalMs >= targetMs
 
     val bgColor = when {
         isSelected -> AppColors.primary.copy(alpha = 0.12f)
@@ -305,7 +309,7 @@ fun WeekDayRow(
                                 modifier = Modifier
                                     .size(width = 3.dp, height = 14.dp)
                                     .clip(RoundedCornerShape(1.5.dp))
-                                    .background(AppColors.primary)
+                                    .background(if (reachedGoal) AppColors.primary else AppColors.accent)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
@@ -325,13 +329,17 @@ fun WeekDayRow(
                 }
             }
 
-            // 总时长
+            // 总时长 - 根据是否达标显示不同颜色
             Text(
                 text = if (hasData) CheckinnViewModel.formatDurationShort(totalMs) else "-",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 fontFamily = JetBrainsMonoFamily,
-                color = if (hasData) AppColors.primaryLight else AppColors.textMuted.copy(alpha = 0.3f),
+                color = when {
+                    !hasData -> AppColors.textMuted.copy(alpha = 0.3f)
+                    reachedGoal -> AppColors.primaryLight
+                    else -> AppColors.accentLight
+                },
                 modifier = Modifier.width(56.dp),
                 textAlign = TextAlign.End,
             )
@@ -342,7 +350,7 @@ fun WeekDayRow(
 // ==================== 月视图 ====================
 
 @Composable
-fun MonthView(uiState: CheckinnUiState, viewModel: CheckinnViewModel, strings: StringResources) {
+fun MonthView(uiState: CheckinnUiState, viewModel: CheckinnViewModel, strings: StringResources, targetMs: Long) {
     if (uiState.monthDates.isEmpty()) return
 
     val today = todayDateString()
@@ -435,6 +443,7 @@ fun MonthView(uiState: CheckinnUiState, viewModel: CheckinnViewModel, strings: S
                             record = record,
                             isToday = isToday,
                             isSelected = isSelected,
+                            targetMs = targetMs,
                             onClick = { viewModel.selectDay(date) },
                             modifier = Modifier.weight(1f),
                         )
@@ -451,12 +460,14 @@ fun MonthDayCell(
     record: DayRecord,
     isToday: Boolean,
     isSelected: Boolean,
+    targetMs: Long,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val dayNum = dayOfMonth(date)
     val totalMs = record.sessions.filter { it.clockOutTime != null }.sumOf { it.durationMs }
     val hasData = record.sessions.isNotEmpty()
+    val reachedGoal = totalMs >= targetMs
 
     // 根据时长调整颜色深浅
     val intensity = when {
@@ -466,15 +477,18 @@ fun MonthDayCell(
         else -> 0.40f
     }
 
+    // 根据是否达标使用不同的颜色
+    val baseColor = if (reachedGoal) AppColors.primary else AppColors.accent
+    
     val bgColor = when {
-        isSelected -> AppColors.primary.copy(alpha = 0.20f)
-        hasData -> AppColors.primary.copy(alpha = intensity)
+        isSelected -> baseColor.copy(alpha = 0.20f)
+        hasData -> baseColor.copy(alpha = intensity)
         else -> Color.Transparent
     }
 
     val borderMod = when {
-        isToday -> Modifier.border(1.5.dp, AppColors.primary, RoundedCornerShape(10.dp))
-        isSelected -> Modifier.border(1.dp, AppColors.primary.copy(alpha = 0.30f), RoundedCornerShape(10.dp))
+        isToday -> Modifier.border(1.5.dp, baseColor, RoundedCornerShape(10.dp))
+        isSelected -> Modifier.border(1.dp, baseColor.copy(alpha = 0.30f), RoundedCornerShape(10.dp))
         else -> Modifier
     }
 
@@ -494,7 +508,7 @@ fun MonthDayCell(
                 fontSize = 14.sp,
                 fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
                 color = when {
-                    isToday -> AppColors.primaryLight
+                    isToday -> if (reachedGoal) AppColors.primaryLight else AppColors.accentLight
                     hasData -> AppColors.textPrimary
                     else -> AppColors.textMuted
                 },
@@ -504,7 +518,7 @@ fun MonthDayCell(
                     text = CheckinnViewModel.formatHoursDecimal(totalMs) + "h",
                     fontSize = 10.sp,
                     fontFamily = JetBrainsMonoFamily,
-                    color = AppColors.primaryLight,
+                    color = if (reachedGoal) AppColors.primaryLight else AppColors.accentLight,
                     fontWeight = FontWeight.Medium,
                 )
             }
@@ -579,7 +593,7 @@ fun StatItem(label: String, value: String) {
 }
 
 @Composable
-fun DayDetailCard(record: DayRecord, strings: StringResources) {
+fun DayDetailCard(record: DayRecord, strings: StringResources, targetMs: Long) {
     GlassCardColumn(
         modifier = Modifier.fillMaxWidth(),
         cornerRadius = 20.dp,
@@ -595,13 +609,16 @@ fun DayDetailCard(record: DayRecord, strings: StringResources) {
         val totalMs = record.sessions
             .filter { it.clockOutTime != null }
             .sumOf { it.durationMs }
+        val reachedGoal = totalMs >= targetMs
+        val statusColor = if (reachedGoal) AppColors.primary else AppColors.accent
+        val statusColorLight = if (reachedGoal) AppColors.primaryLight else AppColors.accentLight
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
                     .size(8.dp)
                     .clip(CircleShape)
-                    .background(AppColors.primary)
+                    .background(statusColor)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
@@ -609,7 +626,7 @@ fun DayDetailCard(record: DayRecord, strings: StringResources) {
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = JetBrainsMonoFamily,
-                color = AppColors.primaryLight,
+                color = statusColorLight,
             )
         }
 

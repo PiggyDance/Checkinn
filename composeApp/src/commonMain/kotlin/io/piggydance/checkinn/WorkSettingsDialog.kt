@@ -1,6 +1,7 @@
 package io.piggydance.checkinn
 
 import androidx.compose.foundation.background
+import kotlin.math.roundToInt
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -49,7 +50,7 @@ fun WorkSettingsDialog(
     onDismiss: () -> Unit,
     onConfirm: (CheckinnSettings) -> Unit,
 ) {
-    var dailyGoalHours by remember { mutableStateOf(settings.dailyGoalHours.toFloat()) }
+    var dailyGoalHours by remember { mutableStateOf(settings.dailyGoalHours) }
     var selectedWorkDays by remember { mutableStateOf(settings.workDays) }
 
     AlertDialog(
@@ -98,7 +99,7 @@ fun WorkSettingsDialog(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = strings.hoursFormat(dailyGoalHours.toInt()),
+                        text = strings.hoursFormat(dailyGoalHours),
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = JetBrainsMonoFamily,
@@ -110,8 +111,8 @@ fun WorkSettingsDialog(
                 
                 // 滑块
                 Slider(
-                    value = dailyGoalHours,
-                    onValueChange = { dailyGoalHours = it },
+                    value = dailyGoalHours.toFloat(),
+                    onValueChange = { dailyGoalHours = it.roundToInt() },
                     valueRange = 0f..12f,
                     steps = 11,
                     colors = SliderDefaults.colors(
@@ -172,7 +173,7 @@ fun WorkSettingsDialog(
                 onClick = {
                     onConfirm(
                         CheckinnSettings(
-                            dailyGoalHours = dailyGoalHours.toInt(),
+                            dailyGoalHours = dailyGoalHours,
                             workDays = selectedWorkDays
                         )
                     )
