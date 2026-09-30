@@ -81,6 +81,11 @@ interface StringResources {
     
     // Settings
     fun settings(): String
+    fun back(): String
+    fun save(): String
+    fun help(): String
+    fun unsavedChanges(): String
+    fun discard(): String
     fun language(): String
     fun selectLanguage(): String
     fun workSettings(): String

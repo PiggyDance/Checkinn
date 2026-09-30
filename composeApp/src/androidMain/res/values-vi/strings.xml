@@ -78,4 +78,18 @@
     <string name="settings">Cài đặt</string>
     <string name="language">Ngôn ngữ</string>
     <string name="select_language">Chọn ngôn ngữ</string>
+    <string name="nfc_launch_disabled_title">Khởi chạy bằng thẻ NFC đã tắt</string>
+    <string name="nfc_launch_disabled_message">Checkinn không thể nhận thẻ NFC để chấm công. Hãy cho phép Checkinn trong cài đặt khởi chạy qua NFC hoặc chấm công thủ công.</string>
+    <string name="nfc_open_settings">Mở cài đặt</string>
+    <string name="work_settings">Cài đặt công việc</string>
+    <string name="daily_goal_hours">Số giờ mục tiêu mỗi ngày</string>
+    <string name="work_days_setting">Cài đặt ngày làm việc</string>
+    <string name="hours_format">%d giờ</string>
+    <string name="confirm">Xác nhận</string>
+    <string name="today_goal_hours">Mục tiêu hôm nay %d giờ</string>
+    <string name="back">Quay lại</string>
+    <string name="save">Lưu</string>
+    <string name="help">Hướng dẫn</string>
+    <string name="unsaved_changes">Thay đổi chưa lưu</string>
+    <string name="discard">Bỏ thay đổi</string>
 </resources>

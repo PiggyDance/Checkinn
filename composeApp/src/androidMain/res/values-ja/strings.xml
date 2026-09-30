@@ -78,4 +78,18 @@
     <string name="settings">設定</string>
     <string name="language">言語</string>
     <string name="select_language">言語を選択</string>
+    <string name="nfc_launch_disabled_title">NFC タグによる起動が無効です</string>
+    <string name="nfc_launch_disabled_message">Checkinn は打刻用の NFC タグを受信できません。NFC による起動の設定で Checkinn を許可するか、手動で打刻してください。</string>
+    <string name="nfc_open_settings">設定を開く</string>
+    <string name="work_settings">勤務設定</string>
+    <string name="daily_goal_hours">1日の目標時間</string>
+    <string name="work_days_setting">勤務日設定</string>
+    <string name="hours_format">%d 時間</string>
+    <string name="confirm">確認</string>
+    <string name="today_goal_hours">今日の目標 %dh</string>
+    <string name="back">戻る</string>
+    <string name="save">保存</string>
+    <string name="help">使い方</string>
+    <string name="unsaved_changes">未保存の変更</string>
+    <string name="discard">変更を破棄</string>
 </resources>

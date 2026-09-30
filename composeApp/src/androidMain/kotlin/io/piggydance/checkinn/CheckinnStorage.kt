@@ -17,29 +17,13 @@ class CheckinnStorage(context: Context) : CheckinnStorageInterface {
         context.getSharedPreferences("checkinn_records", Context.MODE_PRIVATE)
 
     override fun saveDayRecord(record: DayRecord) {
-        val sessionsStr = record.sessions.joinToString(";") { session ->
-            "${session.clockInTime},${session.clockOutTime ?: ""}"
-        }
         prefs.edit()
-            .putString("sessions_${record.date}", sessionsStr)
+            .putString("sessions_${record.date}", CheckinnRecordCodec.encode(record))
             .apply()
     }
 
     override fun loadDayRecord(date: String): DayRecord {
-        val sessionsStr = prefs.getString("sessions_$date", null)
-            ?: return DayRecord(date = date)
-
-        if (sessionsStr.isBlank()) return DayRecord(date = date)
-
-        val sessions = sessionsStr.split(";").mapNotNull { part ->
-            val parts = part.split(",")
-            if (parts.isEmpty() || parts[0].isBlank()) return@mapNotNull null
-            val clockIn = parts[0].toLongOrNull() ?: return@mapNotNull null
-            val clockOut = parts.getOrNull(1)?.toLongOrNull()
-            WorkSession(clockInTime = clockIn, clockOutTime = clockOut)
-        }
-
-        return DayRecord(date = date, sessions = sessions)
+        return CheckinnRecordCodec.decode(date, prefs.getString("sessions_$date", null))
     }
 
     override fun getAllRecordDates(): List<String> {

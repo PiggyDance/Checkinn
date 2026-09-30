@@ -71,6 +71,11 @@ class IosStringResources : StringResources {
     override fun sunday() = "Sunday"
     
     override fun settings() = "Settings"
+    override fun back() = "Back"
+    override fun save() = "Save"
+    override fun help() = "Help"
+    override fun unsavedChanges() = "Unsaved changes"
+    override fun discard() = "Discard"
     override fun language() = "Language"
     override fun selectLanguage() = "Select Language"
     override fun workSettings() = "Work Settings"

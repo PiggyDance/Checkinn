@@ -78,4 +78,18 @@
     <string name="settings">Configuración</string>
     <string name="language">Idioma</string>
     <string name="select_language">Seleccionar idioma</string>
+    <string name="nfc_launch_disabled_title">El inicio mediante NFC está desactivado</string>
+    <string name="nfc_launch_disabled_message">Checkinn no puede recibir etiquetas NFC para registrar entradas y salidas. Permite Checkinn en los ajustes de inicio mediante NFC o registra manualmente.</string>
+    <string name="nfc_open_settings">Abrir ajustes</string>
+    <string name="work_settings">Ajustes de trabajo</string>
+    <string name="daily_goal_hours">Horas objetivo por día</string>
+    <string name="work_days_setting">Días de trabajo</string>
+    <string name="hours_format">%d horas</string>
+    <string name="confirm">Confirmar</string>
+    <string name="today_goal_hours">Objetivo de hoy %dh</string>
+    <string name="back">Volver</string>
+    <string name="save">Guardar</string>
+    <string name="help">Ayuda</string>
+    <string name="unsaved_changes">Cambios sin guardar</string>
+    <string name="discard">Descartar</string>
 </resources>

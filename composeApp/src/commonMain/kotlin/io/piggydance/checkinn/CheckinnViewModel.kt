@@ -46,6 +46,17 @@ class CheckinnViewModel : ViewModel() {
     // 平台相关的存储层, 由 Android 侧注入
     var storage: CheckinnStorageInterface? = null
     var settingsStorage: CheckinnSettingsStorage? = null
+
+    // Preview/iOS without injected storage can still interact with the current screen.
+    // This fallback updates UiState only; it does not imply durable storage.
+    private fun sessions() = CheckinnSessions(storage ?: object : CheckinnStorageInterface {
+        override fun saveDayRecord(record: DayRecord) {
+            _uiState.update { it.copy(todayRecord = record) }
+        }
+        override fun loadDayRecord(date: String): DayRecord =
+            _uiState.value.todayRecord.takeIf { it.date == date } ?: DayRecord(date)
+        override fun getAllRecordDates() = listOf(_uiState.value.todayRecord.date)
+    })
     
     // 字符串资源 - 公开访问，供 UI 层使用
     val strings: StringResources by lazy { getStringResources() }
@@ -54,7 +65,7 @@ class CheckinnViewModel : ViewModel() {
         this.storage = storage
         this.settingsStorage = settingsStorage
         loadSettings()
-        loadTodayRecord()
+        refreshCurrentRecord()
     }
     
     private fun loadSettings() {
@@ -62,9 +73,10 @@ class CheckinnViewModel : ViewModel() {
         _uiState.update { it.copy(settings = settings) }
     }
 
-    private fun loadTodayRecord() {
+    /** Also restores an unfinished session from an earlier day after returning to the app. */
+    fun refreshCurrentRecord() {
         val today = todayDateString()
-        val record = storage?.loadDayRecord(today) ?: DayRecord(date = today)
+        val record = sessions().currentRecord(today)
         _uiState.update { it.copy(todayRecord = record, currentTimeMs = currentTimeMillis()) }
     }
 
@@ -79,9 +91,11 @@ class CheckinnViewModel : ViewModel() {
     private fun handleClockIn() {
         val now = currentTimeMillis()
         val today = todayDateString()
-        val record = storage?.loadDayRecord(today) ?: DayRecord(date = today)
+        val sessions = sessions()
+        val result = sessions.clockIn(today, now)
+        val record = sessions.currentRecord(today)
 
-        if (record.hasActiveSession) {
+        if (result is CheckResult.AlreadyClockedIn) {
             // 已经打过上班卡且还没下班
             _uiState.update {
                 it.copy(
@@ -92,14 +106,9 @@ class CheckinnViewModel : ViewModel() {
             return
         }
 
-        // 创建新的工作段
-        val newSession = WorkSession(clockInTime = now, clockOutTime = null)
-        val updatedRecord = record.copy(sessions = record.sessions + newSession)
-        storage?.saveDayRecord(updatedRecord)
-
         _uiState.update {
             it.copy(
-                todayRecord = updatedRecord,
+                todayRecord = record,
                 showAnimation = true,
                 animationType = AnimationType.CLOCK_IN,
                 currentTimeMs = now,
@@ -111,9 +120,11 @@ class CheckinnViewModel : ViewModel() {
     private fun handleClockOut() {
         val now = currentTimeMillis()
         val today = todayDateString()
-        val record = storage?.loadDayRecord(today) ?: DayRecord(date = today)
+        val sessions = sessions()
+        val result = sessions.clockOut(now)
+        val record = sessions.currentRecord(today)
 
-        if (!record.hasActiveSession) {
+        if (result !is CheckResult.ClockOutSuccess) {
             _uiState.update {
                 it.copy(
                     toastMessage = strings.toastNoClockIn(),
@@ -123,24 +134,17 @@ class CheckinnViewModel : ViewModel() {
             return
         }
 
-        // 结束当前活跃的工作段
-        val updatedSessions = record.sessions.map { session ->
-            if (session.clockOutTime == null) {
-                session.copy(clockOutTime = now)
-            } else {
-                session
-            }
-        }
-        val updatedRecord = record.copy(sessions = updatedSessions)
-        storage?.saveDayRecord(updatedRecord)
-
         _uiState.update {
             it.copy(
-                todayRecord = updatedRecord,
+                todayRecord = record,
                 showAnimation = true,
                 animationType = AnimationType.CLOCK_OUT,
                 currentTimeMs = now,
-                toastMessage = strings.toastClockOutSuccess(formatDurationChinese(updatedRecord.totalDurationMs)),
+                toastMessage = if (result.recordDate == today) {
+                    strings.toastClockOutSuccess(formatDurationChinese(result.totalDuration))
+                } else {
+                    "${strings.clockOut()} ✓ ${strings.dayDetails(result.recordDate)} · ${formatDuration(result.totalDuration)}"
+                },
             )
         }
     }

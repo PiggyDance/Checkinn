@@ -78,4 +78,18 @@
     <string name="settings">設置</string>
     <string name="language">語言</string>
     <string name="select_language">選擇語言</string>
+    <string name="nfc_launch_disabled_title">NFC 標籤啟動已關閉</string>
+    <string name="nfc_launch_disabled_message">系統已禁止 Checkinn 接收 NFC 標籤打卡。請在「透過 NFC 啟動」設定中允許 Checkinn，或使用手動打卡。</string>
+    <string name="nfc_open_settings">開啟設定</string>
+    <string name="work_settings">工作設定</string>
+    <string name="daily_goal_hours">每日目標時長</string>
+    <string name="work_days_setting">工作日設定</string>
+    <string name="hours_format">%d 小時</string>
+    <string name="confirm">確認</string>
+    <string name="today_goal_hours">今日目標 %dh</string>
+    <string name="back">返回</string>
+    <string name="save">儲存</string>
+    <string name="help">使用說明</string>
+    <string name="unsaved_changes">未儲存的變更</string>
+    <string name="discard">捨棄變更</string>
 </resources>

@@ -65,13 +65,14 @@ kotlin {
 android {
     namespace = "io.piggydance.checkinn"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
+    sourceSets.getByName("debug").manifest.srcFile("src/androidDebug/AndroidManifest.xml")
 
     defaultConfig {
         applicationId = "io.piggydance.checkinn"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
     }
     packaging {
         resources {
@@ -79,8 +80,16 @@ android {
         }
     }
     buildTypes {
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
+        }
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
     compileOptions {
@@ -92,4 +101,3 @@ android {
 dependencies {
     debugImplementation(compose.uiTooling)
 }
-

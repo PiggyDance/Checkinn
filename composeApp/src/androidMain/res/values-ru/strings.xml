@@ -78,4 +78,18 @@
     <string name="settings">Настройки</string>
     <string name="language">Язык</string>
     <string name="select_language">Выбрать язык</string>
+    <string name="nfc_launch_disabled_title">Запуск через NFC отключён</string>
+    <string name="nfc_launch_disabled_message">Checkinn не может получать NFC-метки для учёта рабочего времени. Разрешите Checkinn в настройках запуска через NFC или отмечайтесь вручную.</string>
+    <string name="nfc_open_settings">Открыть настройки</string>
+    <string name="work_settings">Настройки работы</string>
+    <string name="daily_goal_hours">Цель в часах на день</string>
+    <string name="work_days_setting">Рабочие дни</string>
+    <string name="hours_format">%d ч</string>
+    <string name="confirm">Подтвердить</string>
+    <string name="today_goal_hours">Цель на сегодня %d ч</string>
+    <string name="back">Назад</string>
+    <string name="save">Сохранить</string>
+    <string name="help">Помощь</string>
+    <string name="unsaved_changes">Несохранённые изменения</string>
+    <string name="discard">Отменить изменения</string>
 </resources>

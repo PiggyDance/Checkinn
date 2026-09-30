@@ -78,4 +78,18 @@
     <string name="settings">การตั้งค่า</string>
     <string name="language">ภาษา</string>
     <string name="select_language">เลือกภาษา</string>
+    <string name="nfc_launch_disabled_title">ปิดการเปิดแอปผ่านแท็ก NFC แล้ว</string>
+    <string name="nfc_launch_disabled_message">Checkinn ไม่สามารถรับแท็ก NFC เพื่อลงเวลาเข้าออกงานได้ อนุญาต Checkinn ในการตั้งค่าการเปิดแอปผ่าน NFC หรือใช้การลงเวลาด้วยตนเอง</string>
+    <string name="nfc_open_settings">เปิดการตั้งค่า</string>
+    <string name="work_settings">การตั้งค่างาน</string>
+    <string name="daily_goal_hours">ชั่วโมงเป้าหมายต่อวัน</string>
+    <string name="work_days_setting">การตั้งค่าวันทำงาน</string>
+    <string name="hours_format">%d ชั่วโมง</string>
+    <string name="confirm">ยืนยัน</string>
+    <string name="today_goal_hours">เป้าหมายวันนี้ %d ชม.</string>
+    <string name="back">กลับ</string>
+    <string name="save">บันทึก</string>
+    <string name="help">วิธีใช้</string>
+    <string name="unsaved_changes">การเปลี่ยนแปลงที่ยังไม่ได้บันทึก</string>
+    <string name="discard">ละทิ้งการเปลี่ยนแปลง</string>
 </resources>
