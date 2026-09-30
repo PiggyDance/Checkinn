@@ -67,7 +67,7 @@ Checkinn/
 
 ### 前置要求
 
-- JDK 11 或更高版本
+- JDK 17 或更高版本
 - Android Studio Hedgehog 或更新版本
 - Xcode 14+ (仅 iOS 开发)
 
@@ -80,6 +80,8 @@ Checkinn/
 # iOS
 ./gradlew :composeApp:iosSimulatorArm64Build
 ```
+
+Android Debug 使用 `io.piggydance.checkinn.debug`，名称为「Checkinn（测试版）」，可与正式版并存。测试版新写入的 NFC 标签关联测试包名；正式版标签关联 `io.piggydance.checkinn`。测试冷启动时请使用专用标签，正式版已有标签可在测试版前台读取。
 
 ## 📱 功能说明
 

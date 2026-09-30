@@ -18,7 +18,7 @@ import android.util.Log
  *
  * NFC 贴纸写入的 NDEF 格式 (2条记录):
  *   Record 1 - URI:  piggydance://checkinn?s=clock_in  (或 clock_out)
- *   Record 2 - AAR:  io.piggydance.checkinn (Android Application Record)
+ *   Record 2 - AAR:  当前安装包名 (正式版 io.piggydance.checkinn)
  *
  * AAR 的作用: 帮助 Android 系统将标签交给指定包名的 App.
  * Android 16 起, 用户可以在系统设置中禁止 App 通过 NFC 标签启动.
@@ -30,7 +30,6 @@ class NfcHelper(private val activity: Activity) {
         const val SCHEME = "piggydance"
         const val HOST = "checkinn"
         const val PARAM_SCENE = "s"
-        const val PACKAGE_NAME = "io.piggydance.checkinn"
     }
 
     private val nfcAdapter: NfcAdapter? = NfcAdapter.getDefaultAdapter(activity)
@@ -124,7 +123,8 @@ class NfcHelper(private val activity: Activity) {
         val uri = "$SCHEME://$HOST?$PARAM_SCENE=${scene.key}"
         val uriRecord = NdefRecord.createUri(uri)
         // AAR: 将标签关联到本 App, 仍遵守用户的 NFC 启动设置
-        val aarRecord = NdefRecord.createApplicationRecord(PACKAGE_NAME)
+        // Bind newly written tags to this installed variant, including isolated review builds.
+        val aarRecord = NdefRecord.createApplicationRecord(activity.packageName)
         val message = NdefMessage(arrayOf(uriRecord, aarRecord))
 
         return try {
