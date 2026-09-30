@@ -358,6 +358,7 @@ fun HomeScreen(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
 @Composable
 fun StatusCard(uiState: CheckinnUiState, strings: StringResources, onGoalClick: () -> Unit) {
     val isWorking = uiState.todayRecord.hasActiveSession
+    val isEarlierDate = uiState.todayRecord.date.isNotEmpty() && uiState.todayRecord.date != todayDateString()
 
     // 工作中 = 绿色渐变毛玻璃, 未工作 = 普通毛玻璃
     val bgBrush = if (isWorking) {
@@ -448,7 +449,7 @@ fun StatusCard(uiState: CheckinnUiState, strings: StringResources, onGoalClick: 
 
                 // 今日累计
                 Text(
-                    text = strings.todayTotal(),
+                    text = if (isEarlierDate) strings.dayDetails(uiState.todayRecord.date) else strings.todayTotal(),
                     fontSize = 11.sp,
                     color = AppColors.textMuted,
                     letterSpacing = 0.5.sp,
@@ -475,7 +476,8 @@ fun StatusCard(uiState: CheckinnUiState, strings: StringResources, onGoalClick: 
                         .padding(8.dp)
                 ) {
                     Text(
-                        text = strings.todayGoalHours(uiState.settings.dailyGoalHours),
+                        text = if (isEarlierDate) strings.hoursFormat(uiState.settings.dailyGoalHours)
+                            else strings.todayGoalHours(uiState.settings.dailyGoalHours),
                         fontSize = 11.sp,
                         color = AppColors.textMuted,
                         letterSpacing = 0.5.sp,
@@ -550,7 +552,8 @@ fun SessionsCard(uiState: CheckinnUiState, strings: StringResources) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = strings.todaySessions(),
+                text = if (uiState.todayRecord.date != todayDateString()) strings.dayDetails(uiState.todayRecord.date)
+                    else strings.todaySessions(),
                 fontSize = 15.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = AppColors.textPrimary,

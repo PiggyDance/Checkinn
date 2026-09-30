@@ -78,4 +78,13 @@
     <string name="settings">Paramètres</string>
     <string name="language">Langue</string>
     <string name="select_language">Sélectionner la langue</string>
+    <string name="nfc_launch_disabled_title">Le lancement par NFC est désactivé</string>
+    <string name="nfc_launch_disabled_message">Checkinn ne peut pas recevoir les tags NFC de pointage. Autorisez Checkinn dans les paramètres de lancement par NFC ou pointez manuellement.</string>
+    <string name="nfc_open_settings">Ouvrir les paramètres</string>
+    <string name="work_settings">Paramètres de travail</string>
+    <string name="daily_goal_hours">Objectif quotidien en heures</string>
+    <string name="work_days_setting">Jours de travail</string>
+    <string name="hours_format">%d heures</string>
+    <string name="confirm">Confirmer</string>
+    <string name="today_goal_hours">Objectif du jour %dh</string>
 </resources>

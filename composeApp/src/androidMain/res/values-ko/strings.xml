@@ -78,4 +78,13 @@
     <string name="settings">설정</string>
     <string name="language">언어</string>
     <string name="select_language">언어 선택</string>
+    <string name="nfc_launch_disabled_title">NFC 태그 실행이 꺼져 있습니다</string>
+    <string name="nfc_launch_disabled_message">Checkinn이 출퇴근 기록용 NFC 태그를 수신할 수 없습니다. NFC로 실행 설정에서 Checkinn을 허용하거나 수동으로 기록하세요.</string>
+    <string name="nfc_open_settings">설정 열기</string>
+    <string name="work_settings">근무 설정</string>
+    <string name="daily_goal_hours">하루 목표 시간</string>
+    <string name="work_days_setting">근무일 설정</string>
+    <string name="hours_format">%d시간</string>
+    <string name="confirm">확인</string>
+    <string name="today_goal_hours">오늘 목표 %dh</string>
 </resources>

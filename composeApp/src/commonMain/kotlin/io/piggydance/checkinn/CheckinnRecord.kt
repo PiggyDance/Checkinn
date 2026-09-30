@@ -45,7 +45,7 @@ enum class NfcScene(val key: String) {
 /** 打卡结果 */
 sealed class CheckResult {
     data class ClockInSuccess(val time: Long) : CheckResult()
-    data class ClockOutSuccess(val sessionDuration: Long, val totalDuration: Long) : CheckResult()
+    data class ClockOutSuccess(val sessionDuration: Long, val totalDuration: Long, val recordDate: String) : CheckResult()
     data class AlreadyClockedIn(val existingTime: Long) : CheckResult()
     data object NotClockedIn : CheckResult()
 }

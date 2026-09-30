@@ -86,11 +86,11 @@ Checkinn/
 ### NFC 打卡
 
 **Android 写入记录:**
-- URI: `piggydance://open?q=1`
-- External: `io.piggydance.checkinn`
+- URI: `piggydance://checkinn?s=clock_in`（或 `clock_out`）
+- AAR: `io.piggydance.checkinn`
 
-External 的作用是直接打开 APP，无需展示系统提示框。
-URI 的作用是携带打开参数，包括打卡类别、地点等信息。
+标签包含场景 URI（`piggydance://checkinn?s=clock_in` 或 `clock_out`）和 Android Application Record（AAR，`io.piggydance.checkinn`），用于关联应用和打卡类别。
+Android 16 起，用户可以在系统的「通过 NFC 启动」设置中禁止标签启动本应用。应用检测到该设置关闭时会提供设置入口；手动打卡仍可使用。
 
 1. **写入 NFC 标签**
    - 点击「写入上班卡」或「写入下班卡」
@@ -107,6 +107,7 @@ URI 的作用是携带打开参数，包括打卡类别、地点等信息。
 - 点击「上班打卡」按钮开始计时
 - 点击「下班打卡」按钮结束计时
 - 支持同一天多次打卡
+- 支持跨午夜下班；整段工时保留在上班日期，不拆分或丢失分钟。重新打开应用也可恢复此前未结束的工作段。
 
 ### 数据统计
 

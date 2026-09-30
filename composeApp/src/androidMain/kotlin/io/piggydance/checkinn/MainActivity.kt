@@ -1,8 +1,12 @@
 package io.piggydance.checkinn
 
+import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.nfc.NfcAdapter
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -17,10 +21,13 @@ class MainActivity : ComponentActivity() {
     private lateinit var viewModel: CheckinnViewModel
     private lateinit var storage: CheckinnStorage
     private lateinit var settingsStorage: AndroidCheckinnSettingsStorage
+    private var tagIntentPromptShown = false
+    private var tagIntentDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        tagIntentPromptShown = savedInstanceState?.getBoolean("tag_intent_prompt_shown") ?: false
 
         // 初始化应用上下文用于字符串资源
         initializeContext(this)
@@ -41,12 +48,47 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        viewModel.refreshCurrentRecord()
         nfcHelper.enableForegroundDispatch()
+        showNfcLaunchSettingsIfNeeded()
     }
 
     override fun onPause() {
         super.onPause()
         nfcHelper.disableForegroundDispatch()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("tag_intent_prompt_shown", tagIntentPromptShown)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onDestroy() {
+        tagIntentDialog?.dismiss()
+        super.onDestroy()
+    }
+
+    private fun showNfcLaunchSettingsIfNeeded() {
+        if (nfcHelper.isTagIntentAllowed) {
+            tagIntentPromptShown = false
+            return
+        }
+        if (tagIntentPromptShown) return
+        tagIntentPromptShown = true
+        tagIntentDialog = AlertDialog.Builder(this)
+            .setTitle(R.string.nfc_launch_disabled_title)
+            .setMessage(R.string.nfc_launch_disabled_message)
+            .setPositiveButton(R.string.nfc_open_settings) { _, _ ->
+                try {
+                    startActivity(Intent(NfcAdapter.ACTION_CHANGE_TAG_INTENT_PREFERENCE))
+                } catch (_: ActivityNotFoundException) {
+                    startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", packageName, null)
+                    })
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     override fun onNewIntent(intent: Intent) {

@@ -20,8 +20,8 @@ import android.util.Log
  *   Record 1 - URI:  piggydance://checkinn?s=clock_in  (或 clock_out)
  *   Record 2 - AAR:  io.piggydance.checkinn (Android Application Record)
  *
- * AAR 的作用: Android 系统检测到 AAR 后会无条件直接启动指定包名的 App,
- * 不会弹出"是否打开"的确认提示框, 实现支付宝碰一碰同款的即刷即开效果.
+ * AAR 的作用: 帮助 Android 系统将标签交给指定包名的 App.
+ * Android 16 起, 用户可以在系统设置中禁止 App 通过 NFC 标签启动.
  */
 class NfcHelper(private val activity: Activity) {
 
@@ -37,6 +37,11 @@ class NfcHelper(private val activity: Activity) {
 
     val isNfcAvailable: Boolean get() = nfcAdapter != null
     val isNfcEnabled: Boolean get() = nfcAdapter?.isEnabled == true
+
+    /** Android 16 起, NFC 标签启动还受用户的应用允许列表控制. */
+    val isTagIntentAllowed: Boolean
+        get() = Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA ||
+            nfcAdapter?.isTagIntentAllowed != false
 
     /** 启用前台 NFC 调度, 让当前 Activity 优先接收 NFC 事件 */
     fun enableForegroundDispatch() {
@@ -118,7 +123,7 @@ class NfcHelper(private val activity: Activity) {
 
         val uri = "$SCHEME://$HOST?$PARAM_SCENE=${scene.key}"
         val uriRecord = NdefRecord.createUri(uri)
-        // AAR: 让 Android 系统直接启动本 App, 不弹确认框
+        // AAR: 将标签关联到本 App, 仍遵守用户的 NFC 启动设置
         val aarRecord = NdefRecord.createApplicationRecord(PACKAGE_NAME)
         val message = NdefMessage(arrayOf(uriRecord, aarRecord))
 

@@ -84,4 +84,7 @@
     <string name="hours_format">%d 小时</string>
     <string name="confirm">确定</string>
     <string name="today_goal_hours">今日目标 %dh</string>
+    <string name="nfc_launch_disabled_title">NFC 标签启动已关闭</string>
+    <string name="nfc_launch_disabled_message">系统已禁止 Checkinn 接收 NFC 标签打卡。请在“通过 NFC 启动”设置中允许 Checkinn，或使用手动打卡。</string>
+    <string name="nfc_open_settings">打开设置</string>
 </resources>

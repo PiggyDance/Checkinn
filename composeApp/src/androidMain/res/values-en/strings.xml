@@ -84,4 +84,7 @@
     <string name="hours_format">%d hours</string>
     <string name="confirm">Confirm</string>
     <string name="today_goal_hours">Today\'s Goal %dh</string>
+    <string name="nfc_launch_disabled_title">NFC tag launch is disabled</string>
+    <string name="nfc_launch_disabled_message">Checkinn cannot receive NFC tags for clocking in or out. Allow Checkinn in Launch via NFC settings, or use manual clocking.</string>
+    <string name="nfc_open_settings">Open settings</string>
 </resources>
