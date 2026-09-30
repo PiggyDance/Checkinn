@@ -51,7 +51,7 @@ fun HistoryScreen(viewModel: CheckinnViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .padding(horizontal = 14.dp)
+            .padding(horizontal = 20.dp)
             .verticalScroll(rememberScrollState()),
     ) {
         Spacer(modifier = Modifier.height(20.dp))
@@ -151,7 +151,7 @@ private fun SegmentItem(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
             ) { onClick() }
-            .padding(vertical = 10.dp),
+            .height(48.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -538,7 +538,7 @@ fun NavigationHeader(title: String, onPrevious: () -> Unit, onNext: () -> Unit) 
         // 上一页按钮
         Box(
             modifier = Modifier
-                .size(40.dp)
+                .size(48.dp)
                 .clip(CircleShape)
                 .background(Color.White.copy(alpha = 0.06f))
                 .border(1.dp, Color.White.copy(alpha = 0.08f), CircleShape)
@@ -554,12 +554,14 @@ fun NavigationHeader(title: String, onPrevious: () -> Unit, onNext: () -> Unit) 
             fontWeight = FontWeight.SemiBold,
             color = AppColors.textPrimary,
             letterSpacing = 0.5.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
         )
 
         // 下一页按钮
         Box(
             modifier = Modifier
-                .size(40.dp)
+                .size(48.dp)
                 .clip(CircleShape)
                 .background(Color.White.copy(alpha = 0.06f))
                 .border(1.dp, Color.White.copy(alpha = 0.08f), CircleShape)

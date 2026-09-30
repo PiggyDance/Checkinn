@@ -87,4 +87,9 @@
     <string name="hours_format">%d시간</string>
     <string name="confirm">확인</string>
     <string name="today_goal_hours">오늘 목표 %dh</string>
+    <string name="back">뒤로</string>
+    <string name="save">저장</string>
+    <string name="help">도움말</string>
+    <string name="unsaved_changes">저장하지 않은 변경사항</string>
+    <string name="discard">변경사항 취소</string>
 </resources>

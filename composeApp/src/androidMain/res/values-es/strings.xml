@@ -87,4 +87,9 @@
     <string name="hours_format">%d horas</string>
     <string name="confirm">Confirmar</string>
     <string name="today_goal_hours">Objetivo de hoy %dh</string>
+    <string name="back">Volver</string>
+    <string name="save">Guardar</string>
+    <string name="help">Ayuda</string>
+    <string name="unsaved_changes">Cambios sin guardar</string>
+    <string name="discard">Descartar</string>
 </resources>

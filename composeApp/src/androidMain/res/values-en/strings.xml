@@ -87,4 +87,9 @@
     <string name="nfc_launch_disabled_title">NFC tag launch is disabled</string>
     <string name="nfc_launch_disabled_message">Checkinn cannot receive NFC tags for clocking in or out. Allow Checkinn in Launch via NFC settings, or use manual clocking.</string>
     <string name="nfc_open_settings">Open settings</string>
+    <string name="back">Back</string>
+    <string name="save">Save</string>
+    <string name="help">Help</string>
+    <string name="unsaved_changes">Unsaved changes</string>
+    <string name="discard">Discard</string>
 </resources>

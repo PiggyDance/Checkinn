@@ -87,4 +87,9 @@
     <string name="hours_format">%d 時間</string>
     <string name="confirm">確認</string>
     <string name="today_goal_hours">今日の目標 %dh</string>
+    <string name="back">戻る</string>
+    <string name="save">保存</string>
+    <string name="help">使い方</string>
+    <string name="unsaved_changes">未保存の変更</string>
+    <string name="discard">変更を破棄</string>
 </resources>

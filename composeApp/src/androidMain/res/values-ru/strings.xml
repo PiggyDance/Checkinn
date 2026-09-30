@@ -87,4 +87,9 @@
     <string name="hours_format">%d ч</string>
     <string name="confirm">Подтвердить</string>
     <string name="today_goal_hours">Цель на сегодня %d ч</string>
+    <string name="back">Назад</string>
+    <string name="save">Сохранить</string>
+    <string name="help">Помощь</string>
+    <string name="unsaved_changes">Несохранённые изменения</string>
+    <string name="discard">Отменить изменения</string>
 </resources>

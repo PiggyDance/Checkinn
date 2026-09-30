@@ -87,4 +87,9 @@
     <string name="hours_format">%d 小時</string>
     <string name="confirm">確認</string>
     <string name="today_goal_hours">今日目標 %dh</string>
+    <string name="back">返回</string>
+    <string name="save">儲存</string>
+    <string name="help">使用說明</string>
+    <string name="unsaved_changes">未儲存的變更</string>
+    <string name="discard">捨棄變更</string>
 </resources>

@@ -79,6 +79,11 @@ class AndroidStringResources(private val context: Context) : StringResources {
     override fun sunday() = context.getString(R.string.sunday)
     
     override fun settings() = context.getString(R.string.settings)
+    override fun back() = context.getString(R.string.back)
+    override fun save() = context.getString(R.string.save)
+    override fun help() = context.getString(R.string.help)
+    override fun unsavedChanges() = context.getString(R.string.unsaved_changes)
+    override fun discard() = context.getString(R.string.discard)
     override fun language() = context.getString(R.string.language)
     override fun selectLanguage() = context.getString(R.string.select_language)
     override fun workSettings() = context.getString(R.string.work_settings)

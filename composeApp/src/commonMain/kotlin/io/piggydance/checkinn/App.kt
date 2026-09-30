@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,15 +35,19 @@ import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Fingerprint
 import androidx.compose.material.icons.rounded.InsertChartOutlined
+import androidx.compose.material.icons.automirrored.rounded.HelpOutline
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -109,13 +114,24 @@ fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
                         .fillMaxSize()
                         .haze(state = hazeState)
                 ) {
-                    when (currentTab) {
-                        AppTab.HOME -> HomeScreen(viewModel = viewModel, uiState = uiState)
-                        AppTab.HISTORY -> HistoryScreen(viewModel = viewModel)
+                    if (uiState.showSettingsDialog) {
+                        WorkSettingsScreen(
+                            settings = uiState.settings,
+                            strings = strings,
+                            onBack = { viewModel.hideSettingsDialog() },
+                            onConfirm = { viewModel.updateSettings(it) },
+                            backEnabled = !uiState.isWriteMode,
+                            nfcContent = { NfcWriteSection(viewModel = viewModel, strings = strings) },
+                        )
+                    } else {
+                        when (currentTab) {
+                            AppTab.HOME -> HomeScreen(viewModel = viewModel, uiState = uiState)
+                            AppTab.HISTORY -> HistoryScreen(viewModel = viewModel)
+                        }
                     }
                     
-                    // 底部导航栏也在这里，这样设置对话框可以模糊所有内容
-                    GlassBottomNav(
+                    // 设置有独立返回入口，其余页面保留原有底部导航。
+                    if (!uiState.showSettingsDialog) GlassBottomNav(
                         currentTab = currentTab,
                         onTabSelected = { currentTab = it },
                         hazeState = hazeState,
@@ -165,21 +181,6 @@ fun App(viewModel: CheckinnViewModel = CheckinnViewModel()) {
             
         }
         
-        // 工作设置对话框 - 覆盖层（在主内容区域外层，这样可以模糊背后内容）
-        AnimatedVisibility(
-            visible = uiState.showSettingsDialog,
-            enter = fadeIn(animationSpec = tween(300)),
-            exit = fadeOut(animationSpec = tween(300)),
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            WorkSettingsDialog(
-                settings = uiState.settings,
-                strings = strings,
-                hazeState = hazeState,
-                onDismiss = { viewModel.hideSettingsDialog() },
-                onConfirm = { viewModel.updateSettings(it) }
-            )
-        }
     }
 }
 
@@ -275,7 +276,7 @@ private fun NavItem(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
             ) { onClick() }
-            .padding(horizontal = 24.dp, vertical = 4.dp),
+            .padding(horizontal = 28.dp, vertical = 6.dp),
     ) {
         Icon(
             imageVector = icon,
@@ -286,7 +287,7 @@ private fun NavItem(
         Spacer(modifier = Modifier.height(3.dp))
         Text(
             text = label,
-            fontSize = 11.sp,
+            fontSize = 12.sp,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
             color = textColor,
         )
@@ -312,23 +313,40 @@ fun HomeScreen(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .padding(horizontal = 14.dp)
+            .padding(horizontal = 20.dp)
             .verticalScroll(rememberScrollState()),
     ) {
         Spacer(modifier = Modifier.height(20.dp))
 
         // App 标题 - 左对齐，使用 Orbitron 字体
-        Text(
-            text = "Checkinn",
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = OrbitronFamily,
-            color = AppColors.textPrimary,
-            letterSpacing = 0.sp,
-            modifier = Modifier.align(Alignment.Start),
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "Checkinn",
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = OrbitronFamily,
+                color = AppColors.textPrimary,
+                modifier = Modifier.weight(1f),
+            )
+            IconButton(
+                onClick = { viewModel.showSettingsDialog() },
+                modifier = Modifier.size(48.dp)
+                    .clip(CircleShape)
+                    .background(AppColors.glassBg),
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Settings,
+                    contentDescription = strings.settings(),
+                    tint = AppColors.textSecondary,
+                    modifier = Modifier.size(22.dp),
+                )
+            }
+        }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         StatusCard(
             uiState = uiState,
@@ -338,15 +356,11 @@ fun HomeScreen(viewModel: CheckinnViewModel, uiState: CheckinnUiState) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        SessionsCard(uiState = uiState, strings = strings)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         ManualCheckButtons(viewModel = viewModel, strings = strings)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        NfcWriteSection(viewModel = viewModel, uiState = uiState, strings = strings)
+        if (uiState.todayRecord.sessions.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(20.dp))
+            SessionsCard(uiState = uiState, strings = strings)
+        }
 
         // 底部留白，避免内容被悬浮导航栏遮挡
         Spacer(modifier = Modifier.height(130.dp))
@@ -413,7 +427,7 @@ fun StatusCard(uiState: CheckinnUiState, strings: StringResources, onGoalClick: 
             .clip(RoundedCornerShape(24.dp))
             .background(bgBrush)
             .border(1.dp, borderColor, RoundedCornerShape(24.dp))
-            .padding(24.dp),
+            .padding(20.dp),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -422,6 +436,7 @@ fun StatusCard(uiState: CheckinnUiState, strings: StringResources, onGoalClick: 
             // 左侧：状态指示灯 + 状态文字
             Column(
                 horizontalAlignment = Alignment.Start,
+                modifier = Modifier.weight(1f),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     // 状态指示灯
@@ -450,27 +465,28 @@ fun StatusCard(uiState: CheckinnUiState, strings: StringResources, onGoalClick: 
                 // 今日累计
                 Text(
                     text = if (isEarlierDate) strings.dayDetails(uiState.todayRecord.date) else strings.todayTotal(),
-                    fontSize = 11.sp,
-                    color = AppColors.textMuted,
+                    fontSize = 12.sp,
+                    color = AppColors.textSecondary,
                     letterSpacing = 0.5.sp,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = CheckinnViewModel.formatDuration(totalDuration),
-                    fontSize = 28.sp,
+                    fontSize = 26.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = JetBrainsMonoFamily,
                     color = if (isWorking) AppColors.primaryLight else AppColors.textPrimary,
                 )
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.width(8.dp))
 
             // 右侧：目标进度（始终显示，支持点击）
             if (targetMs > 0) {
                 Column(
                     horizontalAlignment = Alignment.End,
                     modifier = Modifier
+                        .width(104.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .clickable { onGoalClick() }
                         .padding(8.dp)
@@ -478,8 +494,8 @@ fun StatusCard(uiState: CheckinnUiState, strings: StringResources, onGoalClick: 
                     Text(
                         text = if (isEarlierDate) strings.hoursFormat(uiState.settings.dailyGoalHours)
                             else strings.todayGoalHours(uiState.settings.dailyGoalHours),
-                        fontSize = 11.sp,
-                        color = AppColors.textMuted,
+                        fontSize = 12.sp,
+                        color = AppColors.textSecondary,
                         letterSpacing = 0.5.sp,
                     )
                     Spacer(modifier = Modifier.height(6.dp))
@@ -487,7 +503,7 @@ fun StatusCard(uiState: CheckinnUiState, strings: StringResources, onGoalClick: 
                     // 进度条
                     Box(
                         modifier = Modifier
-                            .width(100.dp)
+                            .width(88.dp)
                             .height(6.dp)
                             .clip(RoundedCornerShape(3.dp))
                             .background(Color.White.copy(alpha = 0.1f))
@@ -665,15 +681,6 @@ fun ManualCheckButtons(viewModel: CheckinnViewModel, strings: StringResources) {
         cornerRadius = 20.dp,
         contentPadding = 16.dp,
     ) {
-        Text(
-            text = strings.manualCheck(),
-            fontSize = 12.sp,
-            color = AppColors.textMuted,
-            letterSpacing = 1.sp,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-        )
-        Spacer(modifier = Modifier.height(14.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -689,14 +696,16 @@ fun ManualCheckButtons(viewModel: CheckinnViewModel, strings: StringResources) {
                         )
                     )
                     .clickable { viewModel.onNfcScanned(NfcScene.CLOCK_IN) }
-                    .padding(vertical = 14.dp),
+                    .heightIn(min = 56.dp)
+                    .padding(horizontal = 8.dp, vertical = 14.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = strings.clockIn(),
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White,
+                    textAlign = TextAlign.Center,
                 )
             }
 
@@ -711,14 +720,16 @@ fun ManualCheckButtons(viewModel: CheckinnViewModel, strings: StringResources) {
                         )
                     )
                     .clickable { viewModel.onNfcScanned(NfcScene.CLOCK_OUT) }
-                    .padding(vertical = 14.dp),
+                    .heightIn(min = 56.dp)
+                    .padding(horizontal = 8.dp, vertical = 14.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = strings.clockOut(),
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White,
+                    textAlign = TextAlign.Center,
                 )
             }
         }
@@ -728,25 +739,43 @@ fun ManualCheckButtons(viewModel: CheckinnViewModel, strings: StringResources) {
 // ==================== NFC 写入区域 ====================
 
 @Composable
-fun NfcWriteSection(viewModel: CheckinnViewModel, uiState: CheckinnUiState, strings: StringResources) {
+fun NfcWriteSection(viewModel: CheckinnViewModel, strings: StringResources) {
+    var showGuide by remember { mutableStateOf(false) }
+    if (showGuide) {
+        AlertDialog(
+            onDismissRequest = { showGuide = false },
+            containerColor = AppColors.bgMid,
+            shape = RoundedCornerShape(24.dp),
+            title = { Text(strings.nfcSetup(), color = AppColors.textPrimary) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(strings.nfcDescription(), color = AppColors.textSecondary, fontSize = 16.sp)
+                    Text(strings.nfcWriteInstruction(), color = AppColors.textSecondary, fontSize = 16.sp)
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showGuide = false }) { Text(strings.confirm()) }
+            },
+        )
+    }
     GlassCardColumn(
         modifier = Modifier.fillMaxWidth(),
         cornerRadius = 20.dp,
         contentPadding = 16.dp,
     ) {
-        Text(
-            text = strings.nfcSetup(),
-            fontSize = 15.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = AppColors.textPrimary,
-        )
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(
-            text = strings.nfcDescription(),
-            fontSize = 12.sp,
-            color = AppColors.textMuted,
-        )
-        Spacer(modifier = Modifier.height(14.dp))
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = strings.nfcSetup(),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = AppColors.textPrimary,
+                modifier = Modifier.weight(1f),
+            )
+            IconButton(onClick = { showGuide = true }, modifier = Modifier.size(48.dp)) {
+                Icon(Icons.AutoMirrored.Rounded.HelpOutline, contentDescription = strings.help(), tint = AppColors.textSecondary)
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -759,14 +788,16 @@ fun NfcWriteSection(viewModel: CheckinnViewModel, uiState: CheckinnUiState, stri
                     .border(1.dp, AppColors.primary.copy(alpha = 0.4f), RoundedCornerShape(14.dp))
                     .background(AppColors.primary.copy(alpha = 0.08f))
                     .clickable { viewModel.enterWriteMode(NfcScene.CLOCK_IN) }
-                    .padding(vertical = 12.dp),
+                    .heightIn(min = 52.dp)
+                    .padding(horizontal = 8.dp, vertical = 12.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = strings.writeClockIn(),
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = AppColors.primaryLight,
+                    textAlign = TextAlign.Center,
                 )
             }
 
@@ -778,14 +809,16 @@ fun NfcWriteSection(viewModel: CheckinnViewModel, uiState: CheckinnUiState, stri
                     .border(1.dp, AppColors.accent.copy(alpha = 0.4f), RoundedCornerShape(14.dp))
                     .background(AppColors.accent.copy(alpha = 0.08f))
                     .clickable { viewModel.enterWriteMode(NfcScene.CLOCK_OUT) }
-                    .padding(vertical = 12.dp),
+                    .heightIn(min = 52.dp)
+                    .padding(horizontal = 8.dp, vertical = 12.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = strings.writeClockOut(),
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = AppColors.accentLight,
+                    textAlign = TextAlign.Center,
                 )
             }
         }
